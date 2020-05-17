@@ -109,6 +109,10 @@ A continuación aparecen descritos los diferentes elementos que forman parte de 
 
 *[Incluya aquí una guía paso a paso para poder utilizar el proyecto, desde la clonación del repositorio hasta el despliegue de la solución en una plataforma en la nube.]*
 
+```sh
+npm install @google-cloud/storage
+```
+
 ## 4. Referencias
 
 *[Incluya aquí las referencias a sitios de interés, datasets y cualquier otra información que haya utilizado para realizar el proyecto y que le puedan ser de utilidad a otras personas que quieran usarlo como referencia]*
