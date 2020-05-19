@@ -1,14 +1,35 @@
 const HttpError = require('../models/http-error');
-const userSchema = require('../models/videos');
 const { validationResult } = require('express-validator');
-const mongoose = require('mongoose');
-const devise = require('mongoose-devise');
-const ObjectId = mongoose.Types.ObjectId;
-const imageCollection = mongoose.model('video', userSchema, 'videos');
+
+const imageSchema = require('../models/images');
+// const ObjectId = mongoose.Types.ObjectId;
+
+// const mongoose = require('mongoose');
+// const imageCollection = mongoose.model('image', userSchema, 'images');
+const {Storage} = require('@google-cloud/storage');
+const path = require('path');
+//necessary?
+// const Multer = require('multer');
+// const multer = Multer({
+// 	storage: Multer.memoryStorage(),
+// 	limits: {
+// 	  fileSize: 5 * 1024 * 1024 // no larger than 5mb, you can change as needed.
+// 	}
+//   });
+
+ //setting Google Cloud Storage credentials
+ const gc = new Storage({
+	keyFilename: path.join(__dirname, '/../emotionfy-media-277519-034f3305fd00.json'),
+	projectId: 'emotionfy-media-277519'
+});
+
+const videosBucket = gc.bucket('staging.emotionfy-media-277519.appspot.com');
+
+// gc.getBuckets().then(x => console.log(x)); //dev purposes only
 
 // Create new image from a video or a single frame
-exports.image_create = function (req, res, next) {
-	console.log('Adding a new frame');
+exports.image_upload = function (req, res, next) {
+	console.log('Adding a new image to the bucket...');
 	const errors = validationResult(req);
 
 	if (!errors.isEmpty()) {
@@ -16,231 +37,27 @@ exports.image_create = function (req, res, next) {
 	}
 
 	try {
-		console.log(ObjectId(req.params.id));
+		console.log('req.file', req.file);
 	} catch (_) {
-		return next(new HttpError('Invalid id', 404));
+		return next(new HttpError('No image uploaded', 404));
 	}
 
-	// new imageCollection({
-	// 	nombre,
-	// 	tipo,
-	// 	index,
-	// 	...field,
-	// 	id_plantilla: ObjectId(req.params.id)
-	// })
-	// 	.save()
-	// 	.then(
-	// 		(/*ans*/) => {
-	// 			//console.log('Complete', ans);
-	// 			return res.status(201).json({ message: 'complete' });
-	// 		}
-	// 	)
-	// 	.catch((err) => {
-	// 		console.log('Error creating format:', err);
-	// 		return next(new HttpError(err.errmsg, 422));
-	// 	});
-};
-
-// Delete image
-exports.image_delete = function (req, res, next) {
-    console.log('Deleting a frame');
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		return next(new HttpError('Invalid request, check your data', 422));
+	if (!req.file) {
+		res.status(400).send('No file uploaded.');
+		return;
 	}
 
-	try {
-		console.log(ObjectId(req.params.id));
-	} catch (_) {
-		return next(new HttpError('Invalid id', 404));
-	}
-	// new imageCollection({
-	// 	nombre,
-	// 	tipo,
-	// 	index,
-	// 	...field,
-	// 	id_plantilla: ObjectId(req.params.id)
-	// })
-	// 	.save()
-	// 	.then(
-	// 		(/*ans*/) => {
-	// 			//console.log('Complete', ans);
-	// 			return res.status(201).json({ message: 'complete' });
-	// 		}
-	// 	)
-	// 	.catch((err) => {
-	// 		console.log('Error creating format:', err);
-	// 		return next(new HttpError(err.errmsg, 422));
-	// 	});
-};
+	const blob = videosBucket.file(req.file.filename);
+	const blobStream = blob.createWriteStream();
+	
+	blobStream.on('error', (err) => {
+		next(err);
+		return;
+	  });
 
-// Update image
-exports.image_update = function (req, res, next) {
-    console.log('Deleting a frame');
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		return next(new HttpError('Invalid request, check your data', 422));
-	}
-
-	try {
-		console.log(ObjectId(req.params.id));
-	} catch (_) {
-		return next(new HttpError('Invalid id', 404));
-	}
-	// new imageCollection({
-	// 	nombre,
-	// 	tipo,
-	// 	index,
-	// 	...field,
-	// 	id_plantilla: ObjectId(req.params.id)
-	// })
-	// 	.save()
-	// 	.then(
-	// 		(/*ans*/) => {
-	// 			//console.log('Complete', ans);
-	// 			return res.status(201).json({ message: 'complete' });
-	// 		}
-	// 	)
-	// 	.catch((err) => {
-	// 		console.log('Error creating format:', err);
-	// 		return next(new HttpError(err.errmsg, 422));
-	// 	});
-};
-
-// image details
-exports.image_detail = function (req, res, next) {
-    console.log('Deleting a frame');
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		return next(new HttpError('Invalid request, check your data', 422));
-	}
-
-	try {
-		console.log(ObjectId(req.params.id));
-	} catch (_) {
-		return next(new HttpError('Invalid id', 404));
-	}
-	// new imageCollection({
-	// 	nombre,
-	// 	tipo,
-	// 	index,
-	// 	...field,
-	// 	id_plantilla: ObjectId(req.params.id)
-	// })
-	// 	.save()
-	// 	.then(
-	// 		(/*ans*/) => {
-	// 			//console.log('Complete', ans);
-	// 			return res.status(201).json({ message: 'complete' });
-	// 		}
-	// 	)
-	// 	.catch((err) => {
-	// 		console.log('Error creating format:', err);
-	// 		return next(new HttpError(err.errmsg, 422));
-	// 	});
-};
-
-// image list (from the same video)
-exports.image_list = function (req, res, next) {
-    console.log('Deleting a frame');
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		return next(new HttpError('Invalid request, check your data', 422));
-	}
-
-	try {
-		console.log(ObjectId(req.params.id));
-	} catch (_) {
-		return next(new HttpError('Invalid id', 404));
-	}
-	// new imageCollection({
-	// 	nombre,
-	// 	tipo,
-	// 	index,
-	// 	...field,
-	// 	id_plantilla: ObjectId(req.params.id)
-	// })
-	// 	.save()
-	// 	.then(
-	// 		(/*ans*/) => {
-	// 			//console.log('Complete', ans);
-	// 			return res.status(201).json({ message: 'complete' });
-	// 		}
-	// 	)
-	// 	.catch((err) => {
-	// 		console.log('Error creating format:', err);
-	// 		return next(new HttpError(err.errmsg, 422));
-	// 	});
-};
-
-// image search necessary?
-exports.image_search = function (req, res, next) {
-    console.log('Deleting a frame');
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		return next(new HttpError('Invalid request, check your data', 422));
-	}
-
-	try {
-		console.log(ObjectId(req.params.id));
-	} catch (_) {
-		return next(new HttpError('Invalid id', 404));
-	}
-	// new imageCollection({
-	// 	nombre,
-	// 	tipo,
-	// 	index,
-	// 	...field,
-	// 	id_plantilla: ObjectId(req.params.id)
-	// })
-	// 	.save()
-	// 	.then(
-	// 		(/*ans*/) => {
-	// 			//console.log('Complete', ans);
-	// 			return res.status(201).json({ message: 'complete' });
-	// 		}
-	// 	)
-	// 	.catch((err) => {
-	// 		console.log('Error creating format:', err);
-	// 		return next(new HttpError(err.errmsg, 422));
-	// 	});
-};
-
-// user list
-exports.video_total = function (req, res, next) {
-    console.log('Deleting a frame');
-	const errors = validationResult(req);
-
-	if (!errors.isEmpty()) {
-		return next(new HttpError('Invalid request, check your data', 422));
-	}
-
-	try {
-		console.log(ObjectId(req.params.id));
-	} catch (_) {
-		return next(new HttpError('Invalid id', 404));
-	}
-	// new imageCollection({
-	// 	nombre,
-	// 	tipo,
-	// 	index,
-	// 	...field,
-	// 	id_plantilla: ObjectId(req.params.id)
-	// })
-	// 	.save()
-	// 	.then(
-	// 		(/*ans*/) => {
-	// 			//console.log('Complete', ans);
-	// 			return res.status(201).json({ message: 'complete' });
-	// 		}
-	// 	)
-	// 	.catch((err) => {
-	// 		console.log('Error creating format:', err);
-	// 		return next(new HttpError(err.errmsg, 422));
-	// 	});
+	  blobStream.on('finish', () => {
+		res.status(200).send('The image has been successfully uploaded to google cloud storage');
+	  });
+	
+	  blobStream.end(req.file.buffer);
 };

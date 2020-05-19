@@ -2,9 +2,9 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var videoSchema = new Schema({
-    metaData: String,
     path: String,
     plan: String,
+    //fr ?
     metadata: {
         filename: String,
         fileSize: Number,

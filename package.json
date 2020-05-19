@@ -1,0 +1,29 @@
+{
+  "name": "tc3041-pf-primavera-2020-equipo7",
+  "version": "1.0.0",
+  "description": "Emotion classifier",
+  "main": "app.js",
+  "dependencies": {
+    "@google-cloud/storage": "^5.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-validator": "^6.5.0",
+    "fs": "^0.0.1-security",
+    "mongoose": "^5.9.14",
+    "mongoose-devise": "^1.0.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tec-csf/tc3041-pf-primavera-2020-equipo7.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tec-csf/tc3041-pf-primavera-2020-equipo7/issues"
+  },
+  "homepage": "https://github.com/tec-csf/tc3041-pf-primavera-2020-equipo7#readme"
+}
