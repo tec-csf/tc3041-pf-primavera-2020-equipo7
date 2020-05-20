@@ -10,6 +10,7 @@
     "express": "^4.17.1",
     "express-fileupload": "^1.1.7-alpha.3",
     "express-validator": "^6.5.0",
+    "ffmpeg": "0.0.4",
     "mongoose": "^5.9.14"
   },
   "devDependencies": {

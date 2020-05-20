@@ -10,6 +10,7 @@ const HttpError = require('./models/HttpError');
 
 // Routes
 const imageRoutes = require('./routes/image');
+const videoRoutes = require('./routes/video');
 
 const app = express();
 
@@ -22,12 +23,13 @@ app.use(
 	fileUpload({
 		debug: true,
 		// createParentPath: true,
-		// useTempFiles: true,
-		// tempFileDir: path.join(__dirname, '/uploads'),
+		useTempFiles: true,
+		tempFileDir: '/tmp/', //path.join(__dirname, '/uploads'),
 		preserveExtension: true
 	})
 );
 app.use('/images', imageRoutes);
+app.use('/videos', videoRoutes);
 app.use((req, res, next) => {
 	next(new HttpError('Could not find this route', 404));
 });
