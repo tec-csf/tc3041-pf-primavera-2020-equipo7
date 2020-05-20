@@ -1,5 +1,12 @@
 #gcs credentials
-/api/media/emotionfy-media-277519-034f3305fd00.json
+emotionfy-media-277519-034f3305fd00.json
+.env
 
 #node_modules
 node_modules/
+
+#.vscode settings
+.vscode/
+
+#intermediary dir
+uploads/

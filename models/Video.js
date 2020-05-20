@@ -14,4 +14,4 @@ var videoSchema = new Schema({
     }
     });
 
-module.exports = videoSchema;
+module.exports = mongoose.model('Video', videoSchema);
