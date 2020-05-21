@@ -1,104 +1,108 @@
-const AWS = require('aws-sdk');
 const fs = require('fs');
-const HttpError = require('../models/HttpError');
-const mongoose = require('mongoose');
 const path = require('path');
+
+const aws = require('aws-sdk');
+const mongoose = require('mongoose');
 const ffmpeg = require('ffmpeg');
+
 const { bucket } = require('../util/gc');
+const { AWS_ACCESS_KEY_ID_NODE, AWS_SECRET_ACCESS_KEY_NODE, AWS_REGION } = require('../config/secrets');
+const Video = require('../models/Video');
+const { Frame } = require('../models/Frame');
+const HttpError = require('../models/HttpError');
 
 // User uploaded a video
-exports.postVideo = async (req, res) => {
-	const video = req.files.video;
+exports.postVideo = async (req, res, next) => {
+	const videoInput = req.files.video;
 	const fps = req.body.fps;
-	if (!req.files && video.mimetype !== 'video/mp4') {
+	if (!req.files && videoInput.mimetype !== 'video/mp4') {
 		return next(new HttpError('No file uploaded, check your format', 422));
 	}
-	const filepath = path.join(__dirname, '..', 'uploads', req.files.video.name);//TODO Change to mongo id
-	req.files.video.mv(filepath)
+	const uploadsPath = path.resolve('uploads');
+	if (!fs.existsSync(uploadsPath)) {
+		fs.mkdirSync(uploadsPath);
+	}
+	const filepath = path.join(uploadsPath, videoInput.name);
+	await req.files.video.mv(filepath);
 	try {
 		const v = await new ffmpeg(filepath);
-		console.log(v.metadata);
-		v.fnExtractFrameToJPG(path.join(__dirname, '..', 'uploads'), {
+		const video = await new Video({
+			metadata: {
+				bucket_link: '',
+				video_size: [v.metadata.video.resolution.w, v.metadata.video.resolution.h],
+				frame_rate: v.metadata.video.fps,
+				duration: v.metadata.duration.seconds
+			},
+			applied_fr: fps,
+			frames: []
+		});
+		//TODO Divide into functions
+		v.fnExtractFrameToJPG(uploadsPath, {
 			frame_rate: Number(fps),
 			file_name: 'video_frame_%s'
-		}, function (error, files) {
-			console.log(files);
-			let fi
-			for (file of files) {
-
-
-			const config = new AWS.Config({
-				accessKeyId: process.env.AWS_ACCESS_KEY_ID_NODE,
-				secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY_NODE,
-				region: process.env.AWS_REGION
+		}, async (error, files) => {
+			const config = new aws.Config({
+				accessKeyId: AWS_ACCESS_KEY_ID_NODE,
+				secretAccessKey: AWS_SECRET_ACCESS_KEY_NODE,
+				region: AWS_REGION
 			});
-			const client = new AWS.Rekognition(config);
-
-			try {
-				const image = fs.readFileSync(photo, {encoding: 'base64'});
-				const params = {
-					Image: {
-						Bytes: new Buffer(image, 'base64'),
-				},
-				Attributes: ['ALL']
-			};
-
-			// "HAPPY";
-			// "SAD";
-			// "ANGRY";
-			// "CONFUSED";
-			// "DISGUSTED";
-			// "SURPRISED";
-			// "CALM";
-			// "UNKNOWN";
-			// "FEAR"
-
-	client.detectFaces(params, function (err, response) {
-		if (err) {
-			console.log(err, err.stack);
-		} else {
-			console.log(`Detected faces for: ${photo}`);
-			response.FaceDetails.forEach(data => {
-				let low = data.AgeRange.Low;
-				let high = data.AgeRange.High;
-				console.log(`The detected face is between: ${low} and ${high} years old`);
-
-				console.log(` ${data.Emotions[0].Type}:${data.Emotions[0].Confidence}`);
-				console.log(` ${data.Emotions[1].Type}:${data.Emotions[1].Confidence}`);
-				console.log(` ${data.Emotions[2].Type}:${data.Emotions[2].Confidence}`);
-				console.log(` ${data.Emotions[3].Type}:${data.Emotions[3].Confidence}`);
-				console.log(` ${data.Emotions[4].Type}:${data.Emotions[4].Confidence}`);
-				console.log(` ${data.Emotions[5].Type}:${data.Emotions[5].Confidence}`);
-				console.log(` ${data.Emotions[6].Type}:${data.Emotions[6].Confidence}`);
-				console.log(` ${data.Emotions[7].Type}:${data.Emotions[7].Confidence}`);
-				// console.log(` ${data.Emotions[8].Type}:${data.Emotions[0].Confidence}`);
-
-			});
-		}
-	});
-} catch (error) {
-	console.log(error);
-}
-
-				const result = await bucket.upload(file, {
-					gzip: true,
-					metadata: {
-						cacheControl: 'public, max-age=31536000'
-					}
-				})
-				if (result) {
-					console.log(result);
-					res.status(200).send('Image uploaded successfully');
-				} else {
-					return next(new HttpError('Image could not be uploaded', 422));
+			const client = new aws.Rekognition(config);
+			let i = 0;
+			for (; i < files.length; i++) {
+				if (i === 0) {
+					continue;
 				}
-				return res.status(200).send('Successfully processed video');
-			}
+				try {
+					const image = fs.readFileSync(files[i], { encoding: 'base64' });
+					const params = {
+						Image: {
+							Bytes: Buffer.from(image, 'base64'),
+						},
+						Attributes: ['ALL']
+					};
+					const result = await client.detectFaces(params).promise();
+					console.log(v.metadata);
+					console.log(result);
+
+					const frame = new Frame({
+						path: files[i],
+						instant: 0,
+						sequence_id: i,
+						bucket_link: '',
+						analysis: []
+					});
+					let j = 0;
+					for (; j < result.FaceDetails.length; j++) {
+						frame.analysis.push(result.FaceDetails[j]);
+					}
+					video.frames.push(frame);
+				} catch (error) {
+					console.log(error);
+					return next(new HttpError('Video could not be processed', 422));
+				}
+			};
+			video.save();
+			// let k = 0;
+			// for (; k < files.length; k++) {
+			// 	const result = await bucket.upload(files[k], {
+			// 		gzip: true,
+			// 		metadata: {
+			// 			cacheControl: 'public, max-age=31536000'
+			// 		}
+			// 	});
+			// 	//TODO Fix reference to bucket_link
+			// 	if (k === 0) {
+			// 		video.metadata.bucket_link = result.bucket_link;
+			// 	} else {
+			// 		video.frames[k - 1].bucket_link = result.bucket_link;
+			// 	}
+			// };
+			res.status(200).send('Análisis básico');
 		});
- 
-	} catch (errtl){
-		if (errortl) {
-			console.log(errortl);
+
+	} catch (err) {
+		if (err) {
+			console.log(err);
 			return next(new HttpError('Image could not be uploaded', 422));
 		}
 	}
@@ -111,5 +115,5 @@ exports.getVideos = (req, res) => {
 
 //getting specific video
 exports.getVideo = (req, res) => {
-		
+
 };

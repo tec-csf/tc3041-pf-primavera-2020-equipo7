@@ -5,12 +5,11 @@ const Schema = mongoose.Schema;
 const videoSchema = new Schema({
 	metadata: {
 		bucket_link: String,
-		file_size: Number,
 		video_size: [Number, Number],
-		frame_rate: Number, //intrinsecal fr
+		frame_rate: Number,
 		duration: Number
 	},
-	applied_fr: Number, //fr when applying video division
+	applied_fr: Number,
 	frames: [frameSchema]
 });
 

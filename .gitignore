@@ -1,6 +1,7 @@
 #gcs credentials
 emotionfy-media-277519-034f3305fd00.json
 .env
+yarn.lock
 
 #node_modules
 node_modules/

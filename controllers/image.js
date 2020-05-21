@@ -35,13 +35,16 @@ exports.postImage = async (req, res, next) => {
 };
 
 exports.getImage = async (fileName, destination) => {
-	// const result = await bucket.file(fileName).download({
-	// 	destination
-	// });
-
-		// get public url for file
-	const getPublicThumbnailUrlForItem = fileName => {
-		return `https://storage.googleapis.com/${videosBucket.name}/${fileName}`
-		}
-	next(new HttpError('Unable to get image url.', 422));
+	
+	return `gs://${bucket.name}/${fileName}`;
 };
+
+// exports.getImage = function imageSender(req, res) {
+// 	let file = bucket.file(req.params.id);
+// 	let readStream = file.createReadStream();
+
+// 	res.setHeader("content-type", "image/png");
+// 	readStream.pipe(res);
+// 	// res.send()
+
+// };
