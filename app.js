@@ -21,7 +21,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
 	fileUpload({
-		debug: true,
 		useTempFiles: true,
 		tempFileDir: '/tmp',
 		preserveExtension: true

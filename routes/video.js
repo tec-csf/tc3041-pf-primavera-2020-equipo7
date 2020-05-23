@@ -5,8 +5,8 @@ const router = Router();
 
 // POST request for creating an user
 router.post('/', videoController.postVideo);
-router.post('/analysis', videoController.postVideoAnalysis);
-router.get('/:user', videoController.getVideos);
-router.get('/details/:id/', videoController.getVideo);
-
+router.post('/:video_id', videoController.postVideoAnalysis);
+router.get('/:user_id', videoController.getVideos);
+router.get('/:user_id/:video_id', videoController.getVideo);
+//TODO delete
 module.exports = router;
