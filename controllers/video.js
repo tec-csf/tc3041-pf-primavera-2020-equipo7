@@ -102,7 +102,6 @@ exports.postVideoAnalysis = async (req, res, next) => {
 
 //all of the videos that one user uploaded
 exports.getVideos = (req, res) => {
-
 };
 
 //getting specific video
