@@ -1,6 +1,3 @@
-const dotenv = require('dotenv');
-
-dotenv.config();
 exports.AWS_ACCESS_KEY_ID_NODE = process.env.AWS_ACCESS_KEY_ID_NODE;
 exports.AWS_SECRET_ACCESS_KEY_NODE = process.env.AWS_SECRET_ACCESS_KEY_NODE;
 exports.AWS_REGION = process.env.AWS_REGION;

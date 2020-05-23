@@ -12,13 +12,15 @@
     "express-fileupload": "^1.1.7-alpha.3",
     "express-validator": "^6.5.0",
     "ffmpeg": "0.0.4",
+    "firebase-admin": "^8.12.1",
     "mongoose": "^5.9.14"
   },
   "devDependencies": {
     "dotenv": "^8.2.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js",
+    "dev": "nodemon -r dotenv/config app.js"
   },
   "repository": {
     "type": "git",

@@ -1,6 +1,6 @@
 # TC3041 Proyecto Final Primavera 2020
 
-# *[Poner aquí el Título del Proyecto]*
+# Emotionfy
 ---
 
 ##### Integrantes:
@@ -59,7 +59,7 @@ Como parte de la entrega final del proyecto, se debe incluir la siguiente inform
 
 ## 3. Solución
 
-A continuación aparecen descritos los diferentes elementos que forman parte de la solución del proyecto.
+Decidimos implementar la solución del problema dividido en dos partes: la administración de videos e imágenes, y la segunda parte, la de usuarios.
 
 ### 3.1 Modelos de *bases de datos* utilizados
 
@@ -97,6 +97,43 @@ A continuación aparecen descritos los diferentes elementos que forman parte de 
 
 *[Por cada endpoint debe incluir lo siguiente:]*
 
+* **Descripción**: La carga de imágenes a la plataforma
+* **URL**: ```/images/```
+* **Verbos HTTP**: ```POST```
+* **Headers**:
+* **Formato JSON del cuerpo de la solicitud**:
+```json
+{
+    "id":String
+}
+```
+* **Formato JSON de la respuesta**:
+```json
+pendiente
+```
+* **Códigos de error**:
+    - 500
+    - 422
+
+* **Descripción**:La carga de videos a la plataforma
+* **URL**: ```/videos/```
+* **Verbos HTTP**: ```POST```
+* **Headers**:
+* **Formato JSON del cuerpo de la solicitud**:
+```json
+{
+    "id":String,
+    "seconds":Number
+}
+```
+* **Formato JSON de la respuesta**:
+```json
+pendiente
+```
+* **Códigos de error**:
+    - 500
+    - 422
+
 * **Descripción**:
 * **URL**:
 * **Verbos HTTP**:
@@ -104,6 +141,8 @@ A continuación aparecen descritos los diferentes elementos que forman parte de 
 * **Formato JSON del cuerpo de la solicitud**: 
 * **Formato JSON de la respuesta**:
 * **Códigos de error**:
+
+
 
 ## 3.6 Pasos a seguir para utilizar el proyecto
 

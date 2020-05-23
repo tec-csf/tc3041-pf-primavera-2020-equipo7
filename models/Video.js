@@ -3,13 +3,18 @@ const { frameSchema } = require('./Frame');
 const Schema = mongoose.Schema;
 
 const videoSchema = new Schema({
+	user: {
+		type: String,
+		index: true
+	},
+	name: String,
 	metadata: {
 		bucket_link: String,
 		video_size: [Number, Number],
 		frame_rate: Number,
 		duration: Number
 	},
-	applied_fr: Number,
+	applied_seconds: Number,
 	frames: [frameSchema]
 });
 
