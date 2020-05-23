@@ -6,7 +6,12 @@ const ffmpeg = require('ffmpeg');
 const { bucket } = require('../util/gc');
 const { processFrame } = require('../util/aws');
 const Video = require('../models/Video');
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
 const HttpError = require('../models/HttpError');
+
+// const mongoose = require('mongoose');
+// const videosCollection = mongoose.model('video', Video, 'videos');
 
 exports.postVideo = async (req, res, next) => {
 	const videoInput = req.files.video;
@@ -102,9 +107,67 @@ exports.postVideoAnalysis = async (req, res, next) => {
 
 //all of the videos that one user uploaded
 exports.getVideos = (req, res) => {
+	const user = req.params.user;
+	Video.aggregate([
+		{
+		  '$match': {
+			'user': user
+		  }
+		}
+	  ]).exec((err, data) => {
+		if (err) {
+			console.log(err);
+			res.status(404).send({ error: 'No videos found. try another username.' });
+		}
+		res.send(data);
+	});
 };
 
 //getting specific video
 exports.getVideo = (req, res) => {
-
+	id = ObjectId(req.params.id);
+	console.log(id);
+	Video.aggregate([
+		{
+		  '$match': {
+			'_id': id
+		  }
+		}, {
+		  '$addFields': {
+			'no_faces': {
+			  '$multiply': [
+				{
+				  '$size': '$frames'
+				}, 14
+			  ]
+			}
+		  }
+		}, {
+		  '$unwind': {
+			'path': '$frames'
+		  }
+		}, {
+		  '$unwind': {
+			'path': '$frames.analysis'
+		  }
+		}, {
+		  '$addFields': {
+			'pred_emot': {
+			  '$max': '$frames.analysis.Emotions.Confidence'
+			}
+		  }
+		}, {
+		  '$project': {
+			'metadata.duration': 1, 
+			'no_faces': 1, 
+			'pred_emot': 1
+		  }
+		}
+	  ]).exec((err, data) => {
+		if (err) {
+			console.log(err);
+			res.status(404).send({ error: 'No video matches that id' });
+		}
+		res.send(data);
+	});
 };

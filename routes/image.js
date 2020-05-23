@@ -6,5 +6,4 @@ const path = require('path');
 // POST request for uploading an image
 router.post('/', imagesController.postImage);
 
-
 module.exports = router;
