@@ -7,6 +7,7 @@ const { bucket } = require('../util/gc');
 const { processFrame } = require('../util/aws');
 
 const { Video, videoAggregations } = require('../models/Video');
+const { Simple } = require('../models/Analysis');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 const HttpError = require('../models/HttpError');
@@ -18,7 +19,7 @@ exports.postVideo = async (req, res, next) => {
 	if (!req.files && videoInput.mimetype !== 'video/mp4') {
 		return next(new HttpError('No file uploaded, check your format', 422));
 	}
-	const uploadsPath = path.join(path.resolve('.') + user);
+	const uploadsPath = path.join(path.resolve('.'), user);
 	if (!fs.existsSync(uploadsPath)) {
 		fs.mkdirSync(uploadsPath);
 	}
@@ -109,7 +110,8 @@ exports.postVideoAnalysis = async (req, res, next) => {
 exports.getVideos = async (req, res) => {
 	const user = req.params.user_id;
 
-	const video = await Analysis.find({user});
+	const videos = await Simple.find({user});
+	res.send(videos);
 };
 
 // Getting specific video

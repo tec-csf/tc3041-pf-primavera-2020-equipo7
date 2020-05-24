@@ -5,13 +5,17 @@ const simpleSchema = mongoose.Schema({
 		type: mongoose.Types.ObjectId,
 		ref: 'Video'
 	},
-	emotion: {
-		type: String,
-		enum: ['HAPPY', 'SURPRISED', 'ANGRY', 'CONFUSED', 'CALM', 'SAD', 'FEAR', 'DISGUSTED']
-	},
-	faces: Number,
 	user: String,
-	duration: Number
+	general: {
+		emotion: {
+			type: String,
+			enum: ['HAPPY', 'SURPRISED', 'ANGRY', 'CONFUSED', 'CALM', 'SAD', 'FEAR', 'DISGUSTED']
+		},
+		faces: Number,
+		duration: Number
+	},
+	faces: []
+
 });
 
 exports.Simple = mongoose.model('Simple', simpleSchema);
