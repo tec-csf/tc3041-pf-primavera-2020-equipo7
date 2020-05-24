@@ -18,4 +18,18 @@ const simpleSchema = mongoose.Schema({
 
 });
 
+const completeSchema = mongoose.Schema({
+	_id: {
+		type: mongoose.Types.ObjectId,
+		ref: 'Video'
+	},
+	beard: Number,
+	eyeglasses: Number,
+	females: Number,
+	males: Number,
+	smiles: Number,
+	sunglasses: Number
+});
+
 exports.Simple = mongoose.model('Simple', simpleSchema);
+exports.Complete = mongoose.model('Complete', completeSchema);

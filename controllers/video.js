@@ -7,7 +7,7 @@ const { bucket } = require('../util/gc');
 const { processFrame } = require('../util/aws');
 
 const { Video, videoAggregations } = require('../models/Video');
-const { Simple } = require('../models/Analysis');
+const { Simple, Complete } = require('../models/Analysis');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 const HttpError = require('../models/HttpError');
@@ -111,20 +111,22 @@ exports.getVideos = async (req, res) => {
 	const user = req.params.user_id;
 
 	const videos = await Simple.find({user});
-	res.send(videos);
+	if (videos) {
+		res.send(videos);
+	} else {
+		next(new HttpError('Unable to find videos for that user', 404));
+	}
 };
 
 // Getting specific video
-exports.getVideo = (req, res) => {
+exports.getVideo = async (req, res) => {
 	const user = req.params.user_id;
 	const _id = new ObjectId(req.params.video_id);
-
-	videoAggregations.single(_id, user)
-		.exec((err, data) => {
-			if (err) {
-				console.log(err);
-				res.status(404).send({ error: 'No video matches that id' });
-			}
-			res.send(data);
-		});
+	
+	const video = await Complete.find({_id, user});
+	if (video) {
+		res.send(video);
+	} else {
+		next(new HttpError('Unable to find that video', 404));
+	}
 };

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { frameSchema } = require('./Frame');
-const { Simple } = require('../models/Analysis');
+const { Simple, Complete } = require('../models/Analysis');
 const Schema = mongoose.Schema;
 
 const videoSchema = new Schema({
@@ -22,86 +22,195 @@ const videoAggregations = {
 		return this.Video.aggregate().facet({
 			general: [
 				{
-					'$match': {
-						'_id': _id,
-						'user': user
+					$match: {
+						_id,
+						user: user
 					}
 				}, {
-					'$sort': {
+					$sort: {
 						'frames.analysis.Emotions.Confidence': 1
 					}
 				}, {
-					'$unwind': {
-						'path': '$frames',
-						'preserveNullAndEmptyArrays': false
+					$unwind: {
+						path: '$frames',
+						preserveNullAndEmptyArrays: false
 					}
 				}, {
-					'$unwind': {
-						'path': '$frames.analysis',
-						'preserveNullAndEmptyArrays': false
+					$unwind: {
+						path: '$frames.analysis',
+						preserveNullAndEmptyArrays: false
 					}
 				}, {
-					'$project': {
-						'duration': '$metadata.duration',
-						'user': '$user',
-						'emotions': {
-							'$arrayElemAt': [
+					$project: {
+						duration: '$metadata.duration',
+						user: '$user',
+						emotions: {
+							$arrayElemAt: [
 								'$frames.analysis.Emotions', 0
 							]
 						}
 					}
 				}, {
-					'$group': {
-						'_id': '$_id',
-						'emotion': {
-							'$max': '$emotions.Type'
+					$group: {
+						_id: '$_id',
+						emotion: {
+							$max: '$emotions.Type'
 						},
-						'faces': {
-							'$sum': 1
+						faces: {
+							$sum: 1
 						},
-						'user': {
-							'$max': '$user'
+						user: {
+							$max: '$user'
 						},
-						'duration': {
-							'$max': '$duration'
+						duration: {
+							$max: '$duration'
 						}
 					}
 				}
 			],
 			faces: [
 				{
-					'$match': {
-						'_id': _id,
-						'user': user
+					$match: {
+						_id,
+						user: user
 					}
 				}, {
-					'$sort': {
+					$sort: {
 						'frames.analysis.Emotions.Confidence': 1
 					}
 				}, {
-					'$unwind': {
-						'path': '$frames',
-						'preserveNullAndEmptyArrays': false
+					$unwind: {
+						path: '$frames',
+						preserveNullAndEmptyArrays: false
 					}
 				}, {
-					'$project': {
-						'faces': '$frames.analysis'
+					$project: {
+						faces: '$frames.analysis'
 					}
 				}, {
-					'$group': {
-						'_id': '$_id',
-						'faces': {
-							'$push': {
-								'$size': '$faces'
+					$group: {
+						_id: '$_id',
+						faces: {
+							$push: {
+								$size: '$faces'
 							}
 						}
 					}
 				}
 			]
-		})
+		});
 	},
 	complete: (_id, user) => {
-		return this.Video.aggregate([{ $match: { _id, user } }]);
+		return this.Video.aggregate().facet({
+			sunglasses: [
+				{
+					$match: {
+						_id,
+						user
+					}
+				}, {
+					$unwind: {
+						path: '$frames'
+					}
+				}, {
+					$match: {
+						'frames.analysis.Sunglasses.Value': true
+					}
+				}, {
+					$count: 'Sunglasses'
+				}
+			],
+			eyeglasses: [
+				{
+					$match: {
+						_id,
+						user
+					}
+				}, {
+					$unwind: {
+						path: '$frames'
+					}
+				}, {
+					$match: {
+						'frames.analysis.Eyeglasses.Value': true
+					}
+				}, {
+					$count: 'Eyeglasses'
+				}
+			],
+			smiles: [
+				{
+					$match: {
+						_id,
+						user
+					}
+				}, {
+					$unwind: {
+						path: '$frames'
+					}
+				}, {
+					$match: {
+						'frames.analysis.Smile.Value': true
+					}
+				}, {
+					$count: 'Smiles'
+				}
+			],
+			beard: [
+				{
+					$match: {
+						_id,
+						user
+					}
+				}, {
+					$unwind: {
+						path: '$frames'
+					}
+				}, {
+					$match: {
+						'frames.analysis.Beard.Value': true
+					}
+				}, {
+					$count: 'Beard'
+				}
+			],
+			males: [
+				{
+					$match: {
+						_id,
+						user
+					}
+				}, {
+					$unwind: {
+						path: '$frames'
+					}
+				}, {
+					$match: {
+						'frames.analysis.Gender.Value': 'Male'
+					}
+				}, {
+					$count: 'Males'
+				}
+			],
+			females: [
+				{
+					$match: {
+						_id,
+						user
+					}
+				}, {
+					$unwind: {
+						path: '$frames'
+					}
+				}, {
+					$match: {
+						'frames.analysis.Gender.Value': 'Female'
+					}
+				}, {
+					$count: 'Females'
+				}
+			]
+		});
 	}
 };
 
@@ -131,12 +240,30 @@ videoSchema.post('save', function (doc, next) {
 					duration: general.duration
 				},
 				faces: faces.faces,
-			}).save((err, product) => {
+			}).save((err) => {
 				if (err) {
 					throw err;
 				}
-				console.log(product);
 			});
+		});
+		videoAggregations.complete(this._id, this.user).exec((err, result) => {
+			if (err) {
+				throw err;
+			}
+			const doc = {};
+			doc._id = this._id;
+			doc.beard = result[0].beard.length ? result[0].beard[0].Beard : 0;
+			doc.eyeglasses = result[0].eyeglasses.length ? result[0].eyeglasses[0].Eyeglasses : 0;
+			doc.females = result[0].females.length ? result[0].females[0].Females : 0;
+			doc.males = result[0].males.length ? result[0].males[0].Males : 0;
+			doc.smiles = result[0].smiles.length ? result[0].smiles[0].Smiles : 0;
+			doc.sunglasses = result[0].sunglasses.length ? result[0].sunglasses[0].Sunglasses : 0;
+
+			new Complete(doc).save((err) => {
+				if (err) {
+					throw err;
+				}
+			})
 		});
 	}
 	next();
