@@ -11,10 +11,11 @@ const simpleSchema = mongoose.Schema({
 			type: String,
 			enum: ['HAPPY', 'SURPRISED', 'ANGRY', 'CONFUSED', 'CALM', 'SAD', 'FEAR', 'DISGUSTED']
 		},
-		faces: Number,
+		gestures: Number,
+		link: String,
 		duration: Number
 	},
-	faces: []
+	gestures: []
 
 });
 
@@ -24,12 +25,14 @@ const completeSchema = mongoose.Schema({
 		ref: 'Video'
 	},
 	user: String,
-	beard: Number,
-	eyeglasses: Number,
+	main: Object,
+	counts: Object,
+	beards: [Number],
+	eyeglasses: [Number],
 	females: Number,
 	males: Number,
-	smiles: Number,
-	sunglasses: Number
+	smiles: [Number],
+	sunglasses: [Number]
 });
 
 exports.Simple = mongoose.model('Simple', simpleSchema);
