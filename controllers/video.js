@@ -6,7 +6,7 @@ const ffmpeg = require('ffmpeg');
 const { bucket } = require('../util/gc');
 const { processFrame } = require('../util/aws');
 
-const { Video, videoAggregations } = require('../models/Video');
+const { Video} = require('../models/Video');
 const { Simple, Complete } = require('../models/Analysis');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
@@ -14,10 +14,10 @@ const HttpError = require('../models/HttpError');
 
 exports.postVideo = async (req, res, next) => {
 	const videoInput = req.files.video;
-	const user = req.body.user_id;
+	const user = req.user;
 
-	if (!req.files && videoInput.mimetype !== 'video/mp4') {
-		return next(new HttpError('No file uploaded, check your format', 422));
+	if (!req.files || videoInput.mimetype !== 'video/mp4' || videoInput.name.indexOf(' ') !== -1) {
+		return next(new HttpError('The video format or name is wrong.', 422));
 	}
 	const uploadsPath = path.join(path.resolve('.'), user);
 	if (!fs.existsSync(uploadsPath)) {
@@ -53,7 +53,7 @@ exports.postVideo = async (req, res, next) => {
 
 // User uploaded a video
 exports.postVideoAnalysis = async (req, res, next) => {
-	const user = req.body.user_id;
+	const user = req.user;
 	const videoId = req.params.video_id;
 	const seconds = req.body.seconds;
 
@@ -108,10 +108,11 @@ exports.postVideoAnalysis = async (req, res, next) => {
 
 // All of the videos that one user uploaded
 exports.getVideos = async (req, res) => {
-	const user = req.params.user_id;
+	const user = req.user;
 
-	const videos = await Simple.find({user});
+	let videos = await Simple.find({user}, {user: 0});
 	if (videos) {
+		videos = videos.map(v => v._doc);
 		res.send(videos);
 	} else {
 		next(new HttpError('Unable to find videos for that user', 404));
@@ -120,12 +121,12 @@ exports.getVideos = async (req, res) => {
 
 // Getting specific video
 exports.getVideo = async (req, res) => {
-	const user = req.params.user_id;
+	const user = req.user;
 	const _id = new ObjectId(req.params.video_id);
 	
-	const video = await Complete.find({_id, user});
+	const video = await Complete.findOne({_id, user}, {user: 0});
 	if (video) {
-		res.send(video);
+		res.send(video._doc);
 	} else {
 		next(new HttpError('Unable to find that video', 404));
 	}

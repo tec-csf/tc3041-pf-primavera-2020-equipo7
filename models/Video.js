@@ -252,6 +252,7 @@ videoSchema.post('save', function (doc, next) {
 			}
 			const doc = {};
 			doc._id = this._id;
+			doc.user = this.user;
 			doc.beard = result[0].beard.length ? result[0].beard[0].Beard : 0;
 			doc.eyeglasses = result[0].eyeglasses.length ? result[0].eyeglasses[0].Eyeglasses : 0;
 			doc.females = result[0].females.length ? result[0].females[0].Females : 0;

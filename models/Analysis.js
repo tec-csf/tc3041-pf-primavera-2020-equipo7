@@ -23,6 +23,7 @@ const completeSchema = mongoose.Schema({
 		type: mongoose.Types.ObjectId,
 		ref: 'Video'
 	},
+	user: String,
 	beard: Number,
 	eyeglasses: Number,
 	females: Number,

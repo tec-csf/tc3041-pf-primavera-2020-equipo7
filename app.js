@@ -13,7 +13,6 @@ const videoRoutes = require('./routes/video');
 
 const app = express();
 
-
 app.use(compression());
 app.use(express.json());
 app.use(cors());
