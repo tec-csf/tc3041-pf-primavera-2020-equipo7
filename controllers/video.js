@@ -5,17 +5,21 @@ const ffmpeg = require('ffmpeg');
 
 const { bucket } = require('../util/gc');
 const { processFrame } = require('../util/aws');
-const Video = require('../models/Video');
+
+const { Video, videoAggregations } = require('../models/Video');
+const { Simple, Complete } = require('../models/Analysis');
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
 const HttpError = require('../models/HttpError');
 
 exports.postVideo = async (req, res, next) => {
 	const videoInput = req.files.video;
-	const user = req.body.user_id;
+	const user = req.user;
 
-	if (!req.files && videoInput.mimetype !== 'video/mp4') {
-		return next(new HttpError('No file uploaded, check your format', 422));
+	if (!req.files || videoInput.mimetype !== 'video/mp4' || videoInput.name.indexOf(' ') !== -1) {
+		return next(new HttpError('The video format or name is wrong.', 422));
 	}
-	const uploadsPath = path.resolve('uploads');
+	const uploadsPath = path.join(path.resolve('.'), user);
 	if (!fs.existsSync(uploadsPath)) {
 		fs.mkdirSync(uploadsPath);
 	}
@@ -46,10 +50,11 @@ exports.postVideo = async (req, res, next) => {
 		next(new HttpError('Error while checking duration of video.', 422));
 	}
 };
+
 // User uploaded a video
 exports.postVideoAnalysis = async (req, res, next) => {
-	const user = req.body.user_id;
-	const videoId = req.body.video_id;
+	const user = req.user;
+	const videoId = req.params.video_id;
 	const seconds = req.body.seconds;
 
 	const video = await Video.findById(videoId);
@@ -58,7 +63,7 @@ exports.postVideoAnalysis = async (req, res, next) => {
 		return next(new HttpError('The video does not belong to the specified user.', 403));
 	}
 	const v = await new ffmpeg(video.metadata.local_link);
-	const uploadsPath = path.resolve('uploads');
+	const uploadsPath = path.resolve(user);
 
 	//TODO Divide into functions
 	v.fnExtractFrameToJPG(uploadsPath, {
@@ -93,6 +98,7 @@ exports.postVideoAnalysis = async (req, res, next) => {
 		}
 		try {
 			await video.save();
+			fs.rmdir(uploadsPath, { recursive: true }, console.log);
 			res.status(200).send('Análisis básico');
 		} catch (err) {
 			next(new HttpError('Error while saving video.', 422));
@@ -100,12 +106,42 @@ exports.postVideoAnalysis = async (req, res, next) => {
 	});
 };
 
-//all of the videos that one user uploaded
-exports.getVideos = (req, res) => {
+// All of the videos that one user uploaded
+exports.getVideos = async (req, res, next) => {
+	const user = req.user;
 
+	const videos = await Video.find({ user });
+	let simpleAnalysis = await Simple.find({ user });
+	if (videos.length > simpleAnalysis.length) {
+		simpleAnalysis = [];
+		try {
+			for (video of videos) {
+				simpleAnalysis.push(await videoAggregations.simple(video._id, user));
+			}
+		} catch (err) {
+			return next(new HttpError('Error on simple analysis of video', 500));
+		}
+	}
+	res.send(simpleAnalysis);
 };
 
-//getting specific video
-exports.getVideo = (req, res) => {
+// Getting specific video
+exports.getVideo = async (req, res, next) => {
+	const user = req.user;
+	const _id = new ObjectId(req.params.video_id);
 
+	const video = await Video.findOne({ _id, user });
+	let analysis = await Complete.findOne({ _id, user }, { user: 0 });
+	if (!video) {
+		next(new HttpError('Unable to find that video', 404));
+	} else if (!analysis) {
+		try {
+			analysis = await videoAggregations.complete(_id, user);
+			res.send({ ...analysis._doc, link: video.metadata.bucket_link });
+		} catch (err) {
+			next(new HttpError('Unable to process video aggregation.', 500));
+		}
+	} else {
+		res.send({ ...analysis._doc, link: video.metadata.bucket_link });
+	}
 };

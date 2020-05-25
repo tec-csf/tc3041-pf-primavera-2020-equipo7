@@ -13,7 +13,6 @@ const videoRoutes = require('./routes/video');
 
 const app = express();
 
-
 app.use(compression());
 app.use(express.json());
 app.use(cors());
@@ -21,7 +20,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
 	fileUpload({
-		debug: true,
 		useTempFiles: true,
 		tempFileDir: '/tmp',
 		preserveExtension: true
