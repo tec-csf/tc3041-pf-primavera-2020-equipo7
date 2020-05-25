@@ -1,6 +1,10 @@
-#gcs credentials
+# Credentials
 emotionfy-media-277519-034f3305fd00.json
+emotionfy-media-277519-firebase-adminsdk-k71aa-802b69b492.json
+firebase.json
 .env
+
+# Yarn
 yarn.lock
 
 #node_modules
