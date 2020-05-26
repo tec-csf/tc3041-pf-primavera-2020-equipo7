@@ -872,7 +872,7 @@ videoSchema.pre('save', function (next) {
 	}
 	next();
 });
-
+//TODO If statement for frame analysis
 videoSchema.post('save', async function (doc, next) {
 	if (this.frames.length > 0) {
 		try {

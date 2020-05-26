@@ -9,7 +9,7 @@ exports.postImage = async (req, res, next) => {
 	if (!req.files && image.mimetype !== 'image/jpeg' && image.mimetype !== 'image/png') {
 		return next(new HttpError('No file uploaded', 422));
 	}
-	const filepath = path.join(__dirname, '..', 'uploads', req.files.image.name);//TODO Change to mongo id
+	const filepath = path.join(__dirname, '..', 'uploads', req.files.image.name);
 		const ans = await req.files.image.mv(filepath)
 		try {
 			const result = await bucket.upload(filepath, {

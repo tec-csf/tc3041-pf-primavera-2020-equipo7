@@ -65,7 +65,6 @@ exports.postVideoAnalysis = async (req, res, next) => {
 	const v = await new ffmpeg(video.metadata.local_link);
 	const uploadsPath = path.resolve(user);
 
-	//TODO Divide into functions
 	v.fnExtractFrameToJPG(uploadsPath, {
 		every_n_seconds: seconds,
 		file_name: 'video_frame_%s'
@@ -88,6 +87,8 @@ exports.postVideoAnalysis = async (req, res, next) => {
 				continue;
 			}
 			try {
+				//TODO If seconds === 0 is free (add python code)
+				//TODO Save python result to collections
 				const frame = await processFrame(files[i]);
 				frame.sequence_id = i;
 				video.frames.push(frame);
@@ -109,7 +110,7 @@ exports.postVideoAnalysis = async (req, res, next) => {
 // All of the videos that one user uploaded
 exports.getVideos = async (req, res, next) => {
 	const user = req.user;
-
+	//TODO Check each video to see if it is free
 	const videos = await Video.find({ user });
 	let simpleAnalysis = await Simple.find({ user });
 	if (videos.length > simpleAnalysis.length) {
@@ -129,7 +130,7 @@ exports.getVideos = async (req, res, next) => {
 exports.getVideo = async (req, res, next) => {
 	const user = req.user;
 	const _id = new ObjectId(req.params.video_id);
-
+	//TODO Check if video is free and if it is don't send Complete
 	const video = await Video.findOne({ _id, user });
 	let analysis = await Complete.findOne({ _id, user }, { user: 0 });
 	if (!video) {

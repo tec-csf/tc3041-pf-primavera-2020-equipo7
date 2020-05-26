@@ -1,15 +1,16 @@
 # TC3041 Proyecto Final Primavera 2020
 
 # Emotionfy
----
 
-##### Integrantes:
+## Development Server
+	`yarn run dev`
+
+## Integrantes
 1. *[Poner aquí Nombre y Apellidos del integrante 1]* - *[Poner aquí su Matrícula]* - *[Poner aquí su campus]*
 2. *[Poner aquí Nombre y Apellidos del integrante 2]* - *[Poner aquí su Matrícula]* - *[Poner aquí su campus]*
 3. *[Poner aquí Nombre y Apellidos del integrante 3]* - *[Poner aquí su Matrícula]* - *[Poner aquí su campus]*
 4. *[Poner aquí Nombre y Apellidos del integrante 4]* - *[Poner aquí su Matrícula]* - *[Poner aquí su campus]*
 
----
 ## 1. Aspectos generales
 
 Las orientaciones del proyecto se encuentran disponibles en la plataforma **Canvas**.
