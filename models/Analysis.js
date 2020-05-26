@@ -24,6 +24,7 @@ const completeSchema = mongoose.Schema({
 		type: mongoose.Types.ObjectId,
 		ref: 'Video'
 	},
+	name: String,
 	user: String,
 	main: Object,
 	counts: Object,

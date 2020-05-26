@@ -31,6 +31,7 @@ app.use((req, res, next) => {
 	next(new HttpError('Could not find this route', 404));
 });
 app.use((error, _, res, next) => {
+	console.log(error);
 	if (res.headerSent) {
 		return next(error);
 	}
