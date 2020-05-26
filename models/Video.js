@@ -172,7 +172,7 @@ const videoAggregations = {
 			}).save();
 		}
 	},
-	complete: async (_id, user) => {
+	complete: async (_id, user, name) => {
 		const analysis = await Complete.findOne({ _id, user });
 		if (analysis) {
 			return analysis;
@@ -849,6 +849,7 @@ const videoAggregations = {
 			const doc = {};
 			doc._id = _id;
 			doc.user = user;
+			doc.name = name;
 			doc.main = Object.keys(result[0].main).length ? result[0].main : [];
 			doc.counts = result[0].counts.length ? result[0].counts[0] : {};
 			doc.beards = result[0].beards.length ? result[0].beards[0].beards : 0;
@@ -876,7 +877,7 @@ videoSchema.pre('save', function (next) {
 videoSchema.post('save', async function (doc, next) {
 	if (this.frames.length > 0) {
 		try {
-			await videoAggregations.simple.aggregation(this._id, this.user);
+			await videoAggregations.simple(this._id, this.user);
 			await videoAggregations.complete(this._id, this.user);
 		} catch (err) {
 			throw err;
