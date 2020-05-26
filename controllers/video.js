@@ -68,10 +68,20 @@ exports.postVideoAnalysis = async (req, res, next) => {
 	//TODO Divide into functions
 	v.fnExtractFrameToJPG(uploadsPath, {
 		every_n_seconds: seconds,
-		file_name: 'video_frame_%s_%t'
+		file_name: 'video_frame_%s'
 	}, async (error, files) => {
 		let i = 0;
 		for (; i < files.length; i++) {
+			try {
+				await bucket.upload(files[i], {
+					gzip: true,
+					metadata: {
+						cacheControl: 'public, max-age=31536000'
+					}
+				});
+			} catch (err) {
+				return next(new HttpError('Error while uploading file.', 422));
+			}
 
 			if (i === 0) {
 				video.metadata.bucket_link = `https://storage.googleapis.com/${bucket.name}/${video.name}`;
@@ -83,16 +93,6 @@ exports.postVideoAnalysis = async (req, res, next) => {
 				video.frames.push(frame);
 			} catch (err) {
 				return next(new HttpError('Error while processing frame.', 422));
-			}
-			try {
-				await bucket.upload(files[i], {
-					gzip: true,
-					metadata: {
-						cacheControl: 'public, max-age=31536000'
-					}
-				});
-			} catch (err) {
-				return next(new HttpError('Error while uploading file.', 422));
 			}
 
 		}

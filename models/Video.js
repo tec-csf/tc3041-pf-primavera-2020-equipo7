@@ -172,7 +172,7 @@ const videoAggregations = {
 			}).save();
 		}
 	},
-	complete: async (_id, user, name) => {
+	complete: async (_id, user) => {
 		const analysis = await Complete.findOne({ _id, user });
 		if (analysis) {
 			return analysis;
@@ -843,21 +843,90 @@ const videoAggregations = {
 							}
 						}
 					}
+				],
+				links: [
+					{
+						$match: {
+							_id,
+							user
+						}
+					}, {
+						$unwind: {
+							path: '$frames',
+							includeArrayIndex: 'frame',
+							preserveNullAndEmptyArrays: false
+						}
+					}, {
+						$group: {
+							_id: '$_id',
+							links: {
+								$push: '$frames.bucket_link'
+							}
+						}
+					}, {
+						$project: {
+							_id: 0,
+							links: 1
+						}
+					}
+				],
+				ages: [
+					{
+						$match: {
+							_id,
+							user
+						}
+					}, {
+						$unwind: {
+							path: '$frames',
+							includeArrayIndex: 'frame',
+							preserveNullAndEmptyArrays: false
+						}
+					}, {
+						$project: {
+							_id: 0,
+							frame: 1,
+							age_range: '$frames.analysis.AgeRange'
+						}
+					}, {
+						$unwind: {
+							path: '$age_range',
+							includeArrayIndex: 'face',
+							preserveNullAndEmptyArrays: false
+						}
+					}, {
+						$group: {
+							_id: null,
+							min_age: {
+								$min: '$age_range.Low'
+							},
+							max_age: {
+								$max: '$age_range.High'
+							}
+						}
+					}, {
+						$project: {
+							_id: 0,
+							min_age: 1,
+							max_age: 1
+						}
+					}
 				]
 			});
 
 			const doc = {};
 			doc._id = _id;
 			doc.user = user;
-			doc.name = name;
 			doc.main = Object.keys(result[0].main).length ? result[0].main : [];
 			doc.counts = result[0].counts.length ? result[0].counts[0] : {};
-			doc.beards = result[0].beards.length ? result[0].beards[0].beards : 0;
-			doc.eyeglasses = result[0].eyeglasses.length ? result[0].eyeglasses[0].eyeglasses : 0;
+			doc.beards = result[0].beards.length ? result[0].beards[0].beards : [];
+			doc.eyeglasses = result[0].eyeglasses.length ? result[0].eyeglasses[0].eyeglasses : [];
 			doc.females = result[0].females.length ? result[0].females[0].females : 0;
 			doc.males = result[0].males.length ? result[0].males[0].males : 0;
-			doc.smiles = result[0].smiles.length ? result[0].smiles[0].smiles : 0;
-			doc.sunglasses = result[0].sunglasses.length ? result[0].sunglasses[0].sunglasses : 0;
+			doc.smiles = result[0].smiles.length ? result[0].smiles[0].smiles : [];
+			doc.sunglasses = result[0].sunglasses.length ? result[0].sunglasses[0].sunglasses : [];
+			doc.links = result[0].links.length ? result[0].links[0].links : [];
+			doc.ages = result[0].ages.length ? result[0].ages[0] : {};
 
 			return await new Complete(doc).save();
 		}
@@ -877,7 +946,7 @@ videoSchema.pre('save', function (next) {
 videoSchema.post('save', async function (doc, next) {
 	if (this.frames.length > 0) {
 		try {
-			await videoAggregations.simple(this._id, this.user);
+			await videoAggregations.simple.aggregation(this._id, this.user);
 			await videoAggregations.complete(this._id, this.user);
 		} catch (err) {
 			throw err;

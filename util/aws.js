@@ -1,7 +1,6 @@
 const { AWS_ACCESS_KEY_ID_NODE, AWS_SECRET_ACCESS_KEY_NODE, AWS_REGION, GC_BUCKET_NAME } = require('../config/secrets');
 const { Frame } = require('../models/Frame');
 const aws = require('aws-sdk');
-const { drawFrame } = require('./canvas');
 const fs = require('fs');
 
 const config = new aws.Config({
@@ -12,13 +11,10 @@ const config = new aws.Config({
 const client = new aws.Rekognition(config);
 
 exports.processFrame = async (file) => {
-	const image = Buffer.from(
-		fs.readFileSync(file, { encoding: 'base64' }),
-		'base64'
-		);
+	const image = fs.readFileSync(file, { encoding: 'base64' });
 	const params = {
 		Image: {
-			Bytes: image,
+			Bytes: Buffer.from(image, 'base64'),
 		},
 		Attributes: ['ALL']
 	};
@@ -33,10 +29,9 @@ exports.processFrame = async (file) => {
 		sequence_id: 0,
 		analysis: []
 	});
-	try {
-		drawFrame(file, image, frame, result.FaceDetails);
-	} catch(err) {
-		throw err;
+	let j = 0;
+	for (; j < result.FaceDetails.length; j++) {
+		frame.analysis.push(result.FaceDetails[j]);
 	}
 
 	return frame;
