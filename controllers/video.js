@@ -5,6 +5,7 @@ const ffmpeg = require('ffmpeg');
 
 const { bucket } = require('../util/gc');
 const { processFrame } = require('../util/aws');
+const { emotionfyVideo } = require('../util/emotionfy');
 
 const { Video, videoAggregations } = require('../models/Video');
 const { Simple, Complete } = require('../models/Analysis');
@@ -60,50 +61,15 @@ exports.postVideoAnalysis = async (req, res, next) => {
 	const video = await Video.findById(videoId);
 	video.applied_seconds = seconds;
 	if (video.user !== user) {
-		return next(new HttpError('The video does not belong to the specified user.', 403));
+		return next(new HttpError('The video does not belong to the specified user', 403));
 	}
-	const v = await new ffmpeg(video.metadata.local_link);
-	const uploadsPath = path.resolve(user);
+	try {
+		await emotionfyVideo(user, video, processFrame);
+	} catch(err) {
+		return next(new HttpError('Error while analyzing video', 403));
+	}
 
-	//TODO Divide into functions
-	v.fnExtractFrameToJPG(uploadsPath, {
-		every_n_seconds: seconds,
-		file_name: 'video_frame_%s'
-	}, async (error, files) => {
-		let i = 0;
-		for (; i < files.length; i++) {
-			try {
-				await bucket.upload(files[i], {
-					gzip: true,
-					metadata: {
-						cacheControl: 'public, max-age=31536000'
-					}
-				});
-			} catch (err) {
-				return next(new HttpError('Error while uploading file.', 422));
-			}
-
-			if (i === 0) {
-				video.metadata.bucket_link = `https://storage.googleapis.com/${bucket.name}/${video.name}`;
-				continue;
-			}
-			try {
-				const frame = await processFrame(files[i]);
-				frame.sequence_id = i;
-				video.frames.push(frame);
-			} catch (err) {
-				return next(new HttpError('Error while processing frame.', 422));
-			}
-
-		}
-		try {
-			await video.save();
-			fs.rmdir(uploadsPath, { recursive: true }, console.log);
-			res.status(200).send('Análisis básico');
-		} catch (err) {
-			next(new HttpError('Error while saving video.', 422));
-		}
-	});
+	res.status(200).send({ message: 'Analysis done' });
 };
 
 // All of the videos that one user uploaded

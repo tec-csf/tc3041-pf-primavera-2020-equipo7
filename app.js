@@ -10,6 +10,7 @@ const { MONGO_URI } = require('./config/secrets');
 // Routes
 const imageRoutes = require('./routes/image');
 const videoRoutes = require('./routes/video');
+const webhookRoutes = require('./routes/webhooks');
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use(
 );
 app.use('/images', imageRoutes);
 app.use('/videos', videoRoutes);
+app.use('/webhooks', webhookRoutes);
 app.use((req, res, next) => {
 	next(new HttpError('Could not find this route', 404));
 });

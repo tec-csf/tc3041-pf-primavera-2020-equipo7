@@ -6,6 +6,7 @@ const Schema = mongoose.Schema;
 const videoSchema = new Schema({
 	user: String,
 	name: String,
+	payment_id: String,
 	metadata: {
 		local_link: String,
 		bucket_link: String,
@@ -942,7 +943,7 @@ videoSchema.pre('save', function (next) {
 	}
 	next();
 });
-
+//TODO Pre Delete after cancellation or payment failure
 videoSchema.post('save', async function (doc, next) {
 	if (this.frames.length > 0) {
 		try {
