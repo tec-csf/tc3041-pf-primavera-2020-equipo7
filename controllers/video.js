@@ -5,6 +5,7 @@ const ffmpeg = require('ffmpeg');
 
 const { bucket } = require('../util/gc');
 const { processFrame } = require('../util/aws');
+const { processFreeFrame } = require('../util/pyapi');
 const { emotionfyVideo } = require('../util/emotionfy');
 
 const { Video, videoAggregations } = require('../models/Video');
@@ -64,7 +65,7 @@ exports.postVideoAnalysis = async (req, res, next) => {
 		return next(new HttpError('The video does not belong to the specified user', 403));
 	}
 	try {
-		await emotionfyVideo(video, processFrame);
+		await emotionfyVideo(video, processFreeFrame);
 	} catch(err) {
 		return next(new HttpError('Error while analyzing video', 403));
 	}
@@ -75,7 +76,7 @@ exports.postVideoAnalysis = async (req, res, next) => {
 // All of the videos that one user uploaded
 exports.getVideos = async (req, res, next) => {
 	const user = req.user;
-
+	//TODO Check each video to see if it is free
 	const videos = await Video.find({ user });
 	let simpleAnalysis = await Simple.find({ user });
 	if (videos.length > simpleAnalysis.length) {
@@ -95,7 +96,7 @@ exports.getVideos = async (req, res, next) => {
 exports.getVideo = async (req, res, next) => {
 	const user = req.user;
 	const _id = new ObjectId(req.params.video_id);
-
+	//TODO Check if video is free and if it is don't send Complete
 	const video = await Video.findOne({ _id, user });
 	let analysis = await Complete.findOne({ _id, user }, { user: 0 });
 	if (!video) {

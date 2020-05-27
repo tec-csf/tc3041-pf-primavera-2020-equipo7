@@ -943,6 +943,7 @@ videoSchema.pre('save', function (next) {
 	}
 	next();
 });
+//TODO If statement for frame analysis
 //TODO Pre Delete after cancellation or payment failure
 videoSchema.post('save', async function (doc, next) {
 	if (this.frames.length > 0) {
