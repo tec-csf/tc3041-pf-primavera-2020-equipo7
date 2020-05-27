@@ -32,7 +32,9 @@ const completeSchema = mongoose.Schema({
 	females: Number,
 	males: Number,
 	smiles: [Number],
-	sunglasses: [Number]
+	sunglasses: [Number],
+	ages: Object,
+	links: []
 });
 
 exports.Simple = mongoose.model('Simple', simpleSchema);
