@@ -2,7 +2,12 @@ const admin = require('./firebase');
 const HttpError = require('../models/HttpError');
 
 exports.authToken = async (req, res, next) => {
-	const userToken = req.body.token ? req.body.token : req.params.token;
+	let token = req.headers.authorization;
+	try {
+		token = token.replace(/Bearer\s/, '');
+	} catch (err) {
+		return next(new HttpError('Error while processing user token', 500));
+	}
 
 	try {
 		const decodedToken = await admin.auth().verifyIdToken(userToken);
