@@ -2,7 +2,8 @@
 const ffmpeg = require('ffmpeg');
 const path = require('path');
 
-exports.emotionfyVideo = async (user, video, callback) => {
+exports.emotionfyVideo = async (video, callback) => {
+	const user = video.user;
 	const seconds = video.applied_seconds;
 	const uploadsPath = path.resolve(user);
 	const v = await new ffmpeg(video.metadata.local_link);

@@ -64,7 +64,7 @@ exports.postVideoAnalysis = async (req, res, next) => {
 		return next(new HttpError('The video does not belong to the specified user', 403));
 	}
 	try {
-		await emotionfyVideo(user, video, processFrame);
+		await emotionfyVideo(video, processFrame);
 	} catch(err) {
 		return next(new HttpError('Error while analyzing video', 403));
 	}
