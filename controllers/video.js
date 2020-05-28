@@ -3,8 +3,6 @@ const path = require('path');
 
 const ffmpeg = require('ffmpeg');
 
-const { bucket } = require('../util/gc');
-const { processFrame } = require('../util/aws');
 const { processFreeFrame } = require('../util/pyapi');
 const { emotionfyVideo } = require('../util/emotionfy');
 
@@ -33,6 +31,7 @@ exports.postVideo = async (req, res, next) => {
 		const video = await new Video({
 			user,
 			name: videoInput.name,
+			payment_id: null,
 			metadata: {
 				local_link: filepath,
 				bucket_link: '',
@@ -76,7 +75,6 @@ exports.postVideoAnalysis = async (req, res, next) => {
 // All of the videos that one user uploaded
 exports.getVideos = async (req, res, next) => {
 	const user = req.user;
-	//TODO Check each video to see if it is free
 	const free = await Video
 		.where('user')
 		.eq(user)
@@ -84,14 +82,20 @@ exports.getVideos = async (req, res, next) => {
 		.eq('free')
 		.select('name metadata.bucket_link metadata.duration');
 
-	const videos = await Video.where('payment_id').ne('free');
+	const videos = await Video
+		.where('user')
+		.eq(user)
+		.where('payment_id')
+		.ne('free');
+
 	let simpleAnalysis = await Simple.where('user').eq(user).select('-user');
 	if (videos.length > simpleAnalysis.length) {
 		simpleAnalysis = [];
 		try {
 			let sa;
 			for (video of videos) {
-				sa = await videoAggregations.simple(video._id, user)._doc;
+				sa = await videoAggregations.simple(video._id, user);
+				sa = sa._doc;
 				delete sa.user;
 				simpleAnalysis.push(sa);
 			}
@@ -133,8 +137,8 @@ exports.getVideo = async (req, res, next) => {
 					$push: '$frames.bucket_link'
 				}
 			});
-			
-			return res.send(analysis[0])
+
+		return res.send(analysis[0]);
 	} else {
 		let analysis = await Complete.findOne({ _id, user }, { user: 0 });
 		if (!analysis) {

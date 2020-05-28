@@ -1,6 +1,8 @@
 //TODO Abstract postVideoAnalysis function
 const ffmpeg = require('ffmpeg');
+const fs = require('fs');
 const path = require('path');
+const { bucket } = require('../util/gc');
 
 exports.emotionfyVideo = async (video, callback) => {
 	const user = video.user;

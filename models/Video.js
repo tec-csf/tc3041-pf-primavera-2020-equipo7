@@ -174,7 +174,7 @@ const videoAggregations = {
 
 			const faces = result[0].gestures[0];
 			const general = result[0].general[0];
-			delete general._id;
+			// delete general._id;
 			return await new Simple({
 				_id: faces._id,
 				user: faces.user,
@@ -954,9 +954,8 @@ videoSchema.pre('save', function (next) {
 	next();
 });
 //TODO If statement for frame analysis
-//TODO Pre Delete after cancellation or payment failure
 videoSchema.post('save', async function (doc, next) {
-	if (this.frames.length > 0) {
+	if (this.frames.length > 0 && this.payment_id !== 'free' && this.payment_id !== null) {
 		try {
 			await videoAggregations.simple(this._id, this.user);
 			await videoAggregations.complete(this._id, this.user);
