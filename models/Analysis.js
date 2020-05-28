@@ -7,6 +7,7 @@ const simpleSchema = mongoose.Schema({
 	},
 	user: String,
 	general: {
+		name: String,
 		emotion: {
 			type: String,
 			enum: ['HAPPY', 'SURPRISED', 'ANGRY', 'CONFUSED', 'CALM', 'SAD', 'FEAR', 'DISGUSTED']

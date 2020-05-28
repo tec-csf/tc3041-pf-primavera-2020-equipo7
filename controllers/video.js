@@ -5,6 +5,8 @@ const ffmpeg = require('ffmpeg');
 
 const { bucket } = require('../util/gc');
 const { processFrame } = require('../util/aws');
+const { processFreeFrame } = require('../util/pyapi');
+const { emotionfyVideo } = require('../util/emotionfy');
 
 const { Video, videoAggregations } = require('../models/Video');
 const { Simple, Complete } = require('../models/Analysis');
@@ -60,88 +62,92 @@ exports.postVideoAnalysis = async (req, res, next) => {
 	const video = await Video.findById(videoId);
 	video.applied_seconds = seconds;
 	if (video.user !== user) {
-		return next(new HttpError('The video does not belong to the specified user.', 403));
+		return next(new HttpError('The video does not belong to the specified user', 403));
 	}
-	const v = await new ffmpeg(video.metadata.local_link);
-	const uploadsPath = path.resolve(user);
+	try {
+		await emotionfyVideo(video, processFreeFrame);
+	} catch (err) {
+		return next(new HttpError('Error while analyzing video', 403));
+	}
 
-	//TODO Divide into functions
-	v.fnExtractFrameToJPG(uploadsPath, {
-		every_n_seconds: seconds,
-		file_name: 'video_frame_%s'
-	}, async (error, files) => {
-		let i = 0;
-		for (; i < files.length; i++) {
-			try {
-				await bucket.upload(files[i], {
-					gzip: true,
-					metadata: {
-						cacheControl: 'public, max-age=31536000'
-					}
-				});
-			} catch (err) {
-				return next(new HttpError('Error while uploading file.', 422));
-			}
-
-			if (i === 0) {
-				video.metadata.bucket_link = `https://storage.googleapis.com/${bucket.name}/${video.name}`;
-				continue;
-			}
-			try {
-				const frame = await processFrame(files[i]);
-				frame.sequence_id = i;
-				video.frames.push(frame);
-			} catch (err) {
-				return next(new HttpError('Error while processing frame.', 422));
-			}
-
-		}
-		try {
-			await video.save();
-			fs.rmdir(uploadsPath, { recursive: true }, console.log);
-			res.status(200).send('Análisis básico');
-		} catch (err) {
-			next(new HttpError('Error while saving video.', 422));
-		}
-	});
+	res.status(200).send({ message: 'Analysis done' });
 };
 
 // All of the videos that one user uploaded
 exports.getVideos = async (req, res, next) => {
 	const user = req.user;
+	//TODO Check each video to see if it is free
+	const free = await Video
+		.where('user')
+		.eq(user)
+		.where('payment_id')
+		.eq('free')
+		.select('name metadata.bucket_link metadata.duration');
 
-	const videos = await Video.find({ user });
-	let simpleAnalysis = await Simple.find({ user });
+	const videos = await Video.where('payment_id').ne('free');
+	let simpleAnalysis = await Simple.where('user').eq(user).select('-user');
 	if (videos.length > simpleAnalysis.length) {
 		simpleAnalysis = [];
 		try {
+			let sa;
 			for (video of videos) {
-				simpleAnalysis.push(await videoAggregations.simple(video._id, user));
+				sa = await videoAggregations.simple(video._id, user)._doc;
+				delete sa.user;
+				simpleAnalysis.push(sa);
 			}
 		} catch (err) {
 			return next(new HttpError('Error on simple analysis of video', 500));
 		}
 	}
-	res.send(simpleAnalysis);
+	res.send({ payed: simpleAnalysis, free });
 };
 
 // Getting specific video
 exports.getVideo = async (req, res, next) => {
 	const user = req.user;
 	const _id = new ObjectId(req.params.video_id);
-
 	const video = await Video.findOne({ _id, user });
-	let analysis = await Complete.findOne({ _id, user }, { user: 0 });
+
 	if (!video) {
-		next(new HttpError('Unable to find that video', 404));
-	} else if (!analysis) {
-		try {
-			analysis = await videoAggregations.complete(_id, user);
-			res.send({ ...analysis._doc, link: video.metadata.bucket_link });
-		} catch (err) {
-			next(new HttpError('Unable to process video aggregation.', 500));
-		}
+		return next(new HttpError('Unable to find that video', 404));
+	} else if (video.payment_id === 'free') {
+		const analysis = await Video.aggregate()
+			.match({
+				_id: video._id,
+				user
+			})
+			.unwind({
+				path: '$frames',
+				includeArrayIndex: 'frame',
+				preserveNullAndEmptyArrays: false
+			})
+			.group({
+				_id: '$_id',
+				name: {
+					$first: '$name'
+				},
+				link: {
+					$first: '$metadata.bucket_link'
+				},
+				images: {
+					$push: '$frames.bucket_link'
+				}
+			});
+			
+			return res.send(analysis[0])
 	} else {
-		res.send({ ...analysis._doc, link: video.metadata.bucket_link });
+		let analysis = await Complete.findOne({ _id, user }, { user: 0 });
+		if (!analysis) {
+			try {
+				analysis = await videoAggregations.complete(_id, user);
+				delete analysis._doc.user;
+				return res.send({ ...analysis._doc, link: video.metadata.bucket_link, name: video.name });
+			} catch (err) {
+				return next(new HttpError('Unable to process video aggregation.', 500));
+			}
+		} else {
+			delete analysis._doc.user;
+			return res.send({ ...analysis._doc, link: video.metadata.bucket_link, name: video.name });
+		}
 	}
 };
