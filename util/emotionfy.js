@@ -19,27 +19,32 @@ exports.emotionfyVideo = async (video, callback) => {
 		
 		if (i === 0) {
 			video.metadata.bucket_link = `https://storage.googleapis.com/${bucket.name}/${video.name}`;
-			await bucket.upload(files[i], {
-				gzip: true,
-				metadata: {
-					cacheControl: 'public, max-age=31536000'
-				}
-			});
 			continue;
 		}
 		const frame = await callback(files[i]);
 		if (frame) {
-			await bucket.upload(files[i], {
-				gzip: true,
-				metadata: {
-					cacheControl: 'public, max-age=31536000'
-				}
-			});
 			frame.sequence_id = i;
 			video.frames.push(frame);
 		}
 
 	}
-	fs.rmdir(uploadsPath, { recursive: true }, console.log);
+	for (let index = 0; index < files.length; index++) {
+		if (i === files.length - 1) {
+			bucket.upload(files[index], {
+				gzip: true,
+				metadata: {
+					cacheControl: 'public, max-age=31536000'
+				}
+			}, err => {
+				fs.rmdir(uploadsPath, { recursive: true }, console.log);
+			});
+		}
+		bucket.upload(files[index], {
+			gzip: true,
+			metadata: {
+				cacheControl: 'public, max-age=31536000'
+			}
+		});
+	}
 	return await video.save();
 };
