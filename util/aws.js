@@ -20,6 +20,9 @@ exports.processFrame = async (file) => {
 		Attributes: ['ALL']
 	};
 	const result = await client.detectFaces(params).promise();
+	if (result.FaceDetails.length === 0) {
+		return null;
+	}
 	const filePathArray = file.split('/');
 	const fileName = filePathArray[filePathArray.length - 1];
 	const frame = new Frame({
