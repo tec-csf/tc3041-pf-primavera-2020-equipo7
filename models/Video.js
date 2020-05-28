@@ -69,6 +69,9 @@ const videoAggregations = {
 							video_id: {
 								$first: '$_id'
 							},
+							name: {
+								$first: '$name'
+							},
 							metadata: {
 								$first: '$metadata'
 							},
@@ -78,8 +81,9 @@ const videoAggregations = {
 						}
 					}, {
 						$project: {
-							user: '$user',
-							video_id: '$video_id',
+							user: 1,
+							name: 1,
+							video_id: 1,
 							duration: '$metadata.duration',
 							link: '$metadata.bucket_link',
 							emotion: {
@@ -91,6 +95,9 @@ const videoAggregations = {
 					}, {
 						$group: {
 							_id: '$emotion.Type',
+							name: {
+								$first: '$name'
+							},
 							video_id: {
 								$first: '$video_id'
 							},
@@ -111,6 +118,9 @@ const videoAggregations = {
 					}, {
 						$group: {
 							_id: '$video_id',
+							name: {
+								$first: '$name'
+							},
 							emotion: {
 								$first: '$_id'
 							},
@@ -948,7 +958,7 @@ videoSchema.pre('save', function (next) {
 videoSchema.post('save', async function (doc, next) {
 	if (this.frames.length > 0) {
 		try {
-			await videoAggregations.simple.aggregation(this._id, this.user);
+			await videoAggregations.simple(this._id, this.user);
 			await videoAggregations.complete(this._id, this.user);
 		} catch (err) {
 			throw err;

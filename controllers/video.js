@@ -66,7 +66,7 @@ exports.postVideoAnalysis = async (req, res, next) => {
 	}
 	try {
 		await emotionfyVideo(video, processFreeFrame);
-	} catch(err) {
+	} catch (err) {
 		return next(new HttpError('Error while analyzing video', 403));
 	}
 
@@ -77,38 +77,77 @@ exports.postVideoAnalysis = async (req, res, next) => {
 exports.getVideos = async (req, res, next) => {
 	const user = req.user;
 	//TODO Check each video to see if it is free
-	const videos = await Video.find({ user });
-	let simpleAnalysis = await Simple.find({ user });
+	const free = await Video
+		.where('user')
+		.eq(user)
+		.where('payment_id')
+		.eq('free')
+		.select('name metadata.bucket_link metadata.duration');
+
+	const videos = await Video.where('payment_id').ne('free');
+	let simpleAnalysis = await Simple.where('user').eq(user).select('-user');
 	if (videos.length > simpleAnalysis.length) {
 		simpleAnalysis = [];
 		try {
+			let sa;
 			for (video of videos) {
-				simpleAnalysis.push(await videoAggregations.simple(video._id, user));
+				sa = await videoAggregations.simple(video._id, user)._doc;
+				delete sa.user;
+				simpleAnalysis.push(sa);
 			}
 		} catch (err) {
 			return next(new HttpError('Error on simple analysis of video', 500));
 		}
 	}
-	res.send(simpleAnalysis);
+	res.send({ payed: simpleAnalysis, free });
 };
 
 // Getting specific video
 exports.getVideo = async (req, res, next) => {
 	const user = req.user;
 	const _id = new ObjectId(req.params.video_id);
-	//TODO Check if video is free and if it is don't send Complete
 	const video = await Video.findOne({ _id, user });
-	let analysis = await Complete.findOne({ _id, user }, { user: 0 });
+
 	if (!video) {
-		next(new HttpError('Unable to find that video', 404));
-	} else if (!analysis) {
-		try {
-			analysis = await videoAggregations.complete(_id, user);
-			res.send({ ...analysis._doc, link: video.metadata.bucket_link });
-		} catch (err) {
-			next(new HttpError('Unable to process video aggregation.', 500));
-		}
+		return next(new HttpError('Unable to find that video', 404));
+	} else if (video.payment_id === 'free') {
+		const analysis = await Video.aggregate()
+			.match({
+				_id: video._id,
+				user
+			})
+			.unwind({
+				path: '$frames',
+				includeArrayIndex: 'frame',
+				preserveNullAndEmptyArrays: false
+			})
+			.group({
+				_id: '$_id',
+				name: {
+					$first: '$name'
+				},
+				link: {
+					$first: '$metadata.bucket_link'
+				},
+				images: {
+					$push: '$frames.bucket_link'
+				}
+			});
+			
+			return res.send(analysis[0])
 	} else {
-		res.send({ ...analysis._doc, link: video.metadata.bucket_link });
+		let analysis = await Complete.findOne({ _id, user }, { user: 0 });
+		if (!analysis) {
+			try {
+				analysis = await videoAggregations.complete(_id, user);
+				delete analysis._doc.user;
+				return res.send({ ...analysis._doc, link: video.metadata.bucket_link, name: video.name });
+			} catch (err) {
+				return next(new HttpError('Unable to process video aggregation.', 500));
+			}
+		} else {
+			delete analysis._doc.user;
+			return res.send({ ...analysis._doc, link: video.metadata.bucket_link, name: video.name });
+		}
 	}
 };
