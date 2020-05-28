@@ -1,5 +1,6 @@
 const { AWS_ACCESS_KEY_ID_NODE, AWS_SECRET_ACCESS_KEY_NODE, AWS_REGION, GC_BUCKET_NAME } = require('../config/secrets');
 const { Frame } = require('../models/Frame');
+const { drawFrame } = require('./canvas');
 const aws = require('aws-sdk');
 const fs = require('fs');
 
@@ -30,9 +31,7 @@ exports.processFrame = async (file) => {
 		analysis: []
 	});
 	let j = 0;
-	for (; j < result.FaceDetails.length; j++) {
-		frame.analysis.push(result.FaceDetails[j]);
-	}
+	drawFrame(file, frame, result.FaceDetails);
 
 	return frame;
 }

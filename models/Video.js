@@ -954,6 +954,7 @@ videoSchema.pre('save', function (next) {
 	next();
 });
 //TODO If statement for frame analysis
+//TODO Pre delete for simple and completion
 videoSchema.post('save', async function (doc, next) {
 	if (this.frames.length > 0 && this.payment_id !== 'free' && this.payment_id !== null) {
 		try {
