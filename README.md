@@ -2,14 +2,11 @@
 
 # Emotionfy
 
-## Development Server
-	`yarn run dev`
-
-## Integrantes
-1. *[Poner aquí Nombre y Apellidos del integrante 1]* - *[Poner aquí su Matrícula]* - *[Poner aquí su campus]*
-2. *[Poner aquí Nombre y Apellidos del integrante 2]* - *[Poner aquí su Matrícula]* - *[Poner aquí su campus]*
-3. *[Poner aquí Nombre y Apellidos del integrante 3]* - *[Poner aquí su Matrícula]* - *[Poner aquí su campus]*
-4. *[Poner aquí Nombre y Apellidos del integrante 4]* - *[Poner aquí su Matrícula]* - *[Poner aquí su campus]*
+##### Integrantes:
+1. *Roberto Gervacio Guendulay* - *[Poner aquí su Matrícula]* - *Campus Santa Fe*
+2. *Isaac Harari Masri* - *[Poner aquí su Matrícula]* - *Campus Santa Fe*
+3. *Alejandra Nissan Leizorek* - *[Poner aquí su Matrícula]* - *Campus Santa Fe*
+4. *Yann Le Lorier Bárcena* - *A01025977* - *Campus Santa Fe*
 
 ## 1. Aspectos generales
 
@@ -56,7 +53,10 @@ Como parte de la entrega final del proyecto, se debe incluir la siguiente inform
 
 ## 2. Descripción del proyecto
 
-*[Incluya aquí la descripción del proyecto seleccionado.]*
+El proyecto seleccionado es una plataforma que permite el análisis de emociones de individuos dentro de un video, usando modelos de Machine Learning. La solución se divide en dos grandes modelos: Face Rekognition de AWS, y un modelo usando CNNs.
+
+- El modelo de AWS, está ligado con una cuenta "premium": el modelo regresa un video junto con un análisis detallado de las emociones, en diferentes puntos del tiempo
+- El modelo de CNN, está ligado con una cuenta "básica": permite subir un video, el análisis se hace cada segundo, pero solo regresa un arreglo de imágenes dibujadas, caracterizando las emociones, sin detalle.
 
 ## 3. Solución
 
@@ -64,6 +64,9 @@ Decidimos implementar la solución del problema dividido en dos partes: la admin
 
 ### 3.1 Modelos de *bases de datos* utilizados
 
+Los dos principales modelos de almacenamiento son MongoDB, junto con Google Cloud Storage, y Firebase, para el manejo de usuarios y autenticaciones.
+
+Al tratarse de un modelo NoSQL, MongoDB permite la flexibilidad de manejar la metadata de los videos como nos convenga. 
 *[Incluya aquí una explicación del análisis realizado y la justificación de los modelos de *bases de datos* seleccionados. Incluya todo lo que considere necesario para que una persona sin conocimientos técnicos pueda entender de que trata su solución.]*
 
 ### 3.2 Arquitectura de la solución
@@ -75,26 +78,46 @@ Decidimos implementar la solución del problema dividido en dos partes: la admin
 *[Incluya aquí una explicación de la solución utilizada para el frontend del proyecto. No olvide incluir las ligas o referencias donde se puede encontrar información de los lenguajes de programación, frameworks y librerías utilizadas.]*
 
 #### 3.3.1 Lenguaje de programación
+
+El lenguaje de programación utilizado para la solución es JavaScript, ya que tiene muchas opciones para generar páginas estéticamente agradables, con una gran funcionalidad de peticiones, y de despliegue de la información.
+
 #### 3.3.2 Framework
+
+El framework utilizado es React, el cual permite generar interfaces gráficas interactivas, de forma adaptable y escalable.
+
 #### 3.3.3 Librerías de funciones o dependencias
+
+//TODO missing frontend dependencies
 
 ### 3.4 Backend
 
-*[Incluya aquí una explicación de la solución utilizada para el backend del proyecto. No olvide incluir las ligas o referencias donde se puede encontrar información de los lenguajes de programación, frameworks y librerías utilizadas.]*
-
 #### 3.4.1 Lenguaje de programación
+
+El lenguaje de programación utilizado para el backend es JavaScript, ya que su amplio soporte con librerías de comunicación con bases de datos, Google Cloud Platform, y Amazon Web Services es útil para integrar todo en un solo proyecto.
+
 #### 3.4.2 Framework
+
+La forma en la que se trabajó el proyecto fue con la utilización del desarrollo MERN (principalmente), junto con otros servicios utilizados.
+
 #### 3.4.3 Librerías de funciones o dependencias
+
+//TODO missing backend dependencies
 
 ### 3.5 API
 
 *[Incluya aquí una explicación de la solución utilizada para implementar la API del proyecto. No olvide incluir las ligas o referencias donde se puede encontrar información de los lenguajes de programación, frameworks y librerías utilizadas.]*
 
 #### 3.5.1 Lenguaje de programación
+
+El lenguaje de programación utilizado para el backend es JavaScript, ya que su amplio soporte con librerías de comunicación con bases de datos, Google Cloud Platform, y Amazon Web Services es útil para integrar todo en un solo proyecto.
+
 #### 3.5.2 Framework
+
+Las peticiones al backend se hicieron con mongoose, para obtener información relevante al proyecto.
+
 #### 3.5.3 Librerías de funciones o dependencias
 
-*[Incluya aquí una explicación de cada uno de los endpoints que forman parte de la API. Cada endpoint debe estar correctamente documentado.]*
+A continuación están resumidos los endpoints que se utilizaron:
 
 *[Por cada endpoint debe incluir lo siguiente:]*
 
@@ -143,8 +166,6 @@ pendiente
 * **Formato JSON de la respuesta**:
 * **Códigos de error**:
 
-
-
 ## 3.6 Pasos a seguir para utilizar el proyecto
 
 *[Incluya aquí una guía paso a paso para poder utilizar el proyecto, desde la clonación del repositorio hasta el despliegue de la solución en una plataforma en la nube.]*
@@ -155,4 +176,5 @@ npm install @google-cloud/storage
 
 ## 4. Referencias
 
-*[Incluya aquí las referencias a sitios de interés, datasets y cualquier otra información que haya utilizado para realizar el proyecto y que le puedan ser de utilidad a otras personas que quieran usarlo como referencia]*
+- [Firebase Docs](https://firebase.google.com/docs/)
+- [Storage Docs](https://cloud.google.com/storage/)
