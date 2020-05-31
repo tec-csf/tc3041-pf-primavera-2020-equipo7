@@ -74,6 +74,8 @@ exports.postVideoAnalysis = async (req, res, next) => {
 	}
 	try {
 		await emotionfyVideo(video, processFreeFrame);
+		video.payment_id = 'free'
+		await video.save();
 	} catch (err) {
 		return next(new HttpError('Error while analyzing video', 403));
 	}
