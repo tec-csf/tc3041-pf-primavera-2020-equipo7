@@ -18,9 +18,10 @@ exports.postCheckoutSession = async (req, res) => {
 	const video = await Video.findById(data.object.client_reference_id);
 	
 	const paymentIntent = await stripe.paymentIntents.retrieve(data.object.payment_intent);
+	const status = paymentIntent.status;
 
-	let status = paymentIntent.status;
-	if (video && status === 'succeeded') {//TODO Check payment_intent status
+	
+	if (video && status === 'succeeded') {//TODO Check if video or image
 		video.applied_seconds = Math.round(video.metadata.duration / Math.round((paymentIntent.amount / 100) / CHARGE_PER_FRAME));
 		video.payment_id = data.object.payment_intent;
 		video.save();

@@ -4,6 +4,9 @@ const Schema = mongoose.Schema;
 const frameSchema = new Schema({
 	name: String,
 	path: String,
+	user: String,
+	payment_id: String,
+	local_link: String,
 	instant: Number,
 	sequence_id: Number,
 	bucket_link: String,

@@ -3,7 +3,7 @@ const { GC_APPLICATION_CREDENTIALS, GC_BUCKET_NAME } = require('../config/secret
 
 const { Storage } = Cloud
 const gc = new Storage({
-	keyFilename: GC_APPLICATION_CREDENTIALS
+	credentials: GC_APPLICATION_CREDENTIALS
 });
 
 exports.bucket = gc.bucket(GC_BUCKET_NAME);
