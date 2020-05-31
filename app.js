@@ -26,7 +26,6 @@ app.use(
 		preserveExtension: true
 	})
 );
-app.use('/images', imageRoutes);
 app.use('/videos', videoRoutes);
 app.use('/webhooks', webhookRoutes);
 app.use((req, res, next) => {
