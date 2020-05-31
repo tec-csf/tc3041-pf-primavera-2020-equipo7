@@ -1,4 +1,10 @@
+const fs = require('fs').promises;
+const path = require('path');
+
 const mongoose = require('mongoose');
+
+const { bucket } = require('../util/gc');
+
 const { frameSchema } = require('./Frame');
 const { Simple, Complete } = require('../models/Analysis');
 const Schema = mongoose.Schema;
@@ -953,10 +959,9 @@ videoSchema.pre('save', function (next) {
 	}
 	next();
 });
-//TODO If statement for frame analysis
-//TODO Pre delete for simple and completion
+
 videoSchema.post('save', async function (doc, next) {
-	if (this.frames.length > 0 && this.payment_id !== 'free' && this.payment_id !== null) {
+	if (this.__v && this.payment_id !== 'free' && this.payment_id !== null) {
 		try {
 			await videoAggregations.simple(this._id, this.user);
 			await videoAggregations.complete(this._id, this.user);
@@ -965,6 +970,25 @@ videoSchema.post('save', async function (doc, next) {
 		}
 	}
 	next();
+});
+
+videoSchema.pre('remove', async function (next) {
+	try {
+		if (this.__v) {
+			await Simple.deleteOne({ _id: this._id });
+			await Complete.deleteOne({ _id: this._id });
+			await bucket.file(this.name).delete();
+		} else {
+			await fs.rmdir(path.resolve(this.user), {
+				recursive: true
+			});
+		}
+	} catch(err) {
+		console.log(err);
+	} finally {
+		next();
+	}
+
 });
 
 exports.Video = mongoose.model('Video', videoSchema);

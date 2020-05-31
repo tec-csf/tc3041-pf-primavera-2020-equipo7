@@ -27,6 +27,7 @@ exports.postCheckoutSession = async (req, res) => {
 		try {
 			await emotionfyVideo(video, processFrame);
 		} catch(err) {
+			video.remove();
 			console.log(err);
 		}
 	}

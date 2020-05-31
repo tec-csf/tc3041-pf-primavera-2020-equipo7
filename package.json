@@ -20,6 +20,7 @@
     "global": "^4.4.0",
     "mongoose": "^5.9.14",
     "ngrok": "^3.2.7",
+    "redis": "^3.0.2",
     "stripe": "^8.55.0"
   },
   "devDependencies": {
