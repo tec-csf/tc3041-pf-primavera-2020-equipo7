@@ -8,7 +8,6 @@ const cors = require('cors');
 const HttpError = require('./models/HttpError');
 const { MONGO_URI } = require('./config/secrets');
 // Routes
-const imageRoutes = require('./routes/image');
 const videoRoutes = require('./routes/video');
 const webhookRoutes = require('./routes/webhooks');
 
