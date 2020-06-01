@@ -5,7 +5,7 @@
 ##### Integrantes:
 1. *Roberto Gervacio Guendulay* - *[Poner aquí su Matrícula]* - *Campus Santa Fe*
 2. *Isaac Harari Masri* - *[Poner aquí su Matrícula]* - *Campus Santa Fe*
-3. *Alejandra Nissan Leizorek* - *[Poner aquí su Matrícula]* - *Campus Santa Fe*
+3. *Alejandra Nissan Leizorek* - *A01024682* - *Campus Santa Fe*
 4. *Yann Le Lorier Bárcena* - *A01025977* - *Campus Santa Fe*
 
 ## 1. Aspectos generales
