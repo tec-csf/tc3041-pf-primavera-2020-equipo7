@@ -988,7 +988,7 @@ videoSchema.pre('remove', async function (next) {
 			});
 		}
 	} catch(err) {
-		console.log(err);
+		console.error(err);
 	} finally {
 		next();
 	}

@@ -2,15 +2,16 @@ const fs = require('fs');
 const path = require('path');
 
 const ffmpeg = require('ffmpeg');
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
 
-const { processFreeFrame } = require('../util/pyapi');
 const { emotionfyVideo } = require('../util/emotionfy');
 const { publish, status } = require('../util/realtime');
+const { processFreeFrame } = require('../util/pyapi');
+const { hgetall } = require('../util/redis');
 
 const { Video, videoAggregations } = require('../models/Video');
 const { Simple, Complete } = require('../models/Analysis');
-const mongoose = require('mongoose');
-const ObjectId = mongoose.Types.ObjectId;
 const HttpError = require('../models/HttpError');
 
 exports.postVideo = async (req, res, next) => {
@@ -90,7 +91,10 @@ exports.postVideoAnalysis = async (req, res, next) => {
 exports.getVideos = async (req, res, next) => {
 	const user = req.user;
 
-	const pending = await Video
+	
+	const processing = await hgetall(user);
+
+	let pending = await Video
 		.where('user')
 		.eq(user)
 		.where('payment_id')
@@ -98,6 +102,11 @@ exports.getVideos = async (req, res, next) => {
 		.where('__v')
 		.eq(0)
 		.select('metadata.duration');
+	if (processing) {
+		for (let vid of Object.keys(processing)) {
+			pending = pending.filter(v => v.id !== vid)
+		};
+	}
 
 	const free = await Video
 		.where('user')
@@ -132,7 +141,7 @@ exports.getVideos = async (req, res, next) => {
 		}
 	}
 
-	res.send({ payed, free, pending });
+	res.send({ payed, free, pending, processing });
 };
 
 // Getting specific video
