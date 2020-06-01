@@ -1,16 +1,11 @@
-const mongoose = require('mongoose');
 const { STRIPE_SECRET_KEY, CHARGE_PER_FRAME } = require('../config/secrets');
 const stripe = require('stripe')(STRIPE_SECRET_KEY);
-const { Video } = require('../models/Video');
+
 const { emotionfyVideo } = require('../util/emotionfy');
 const { processFrame } = require('../util/aws');
+const { publish, status } = require('../util/realtime');
 
-const PaymentIntentStatus = {
-	CREATED: 'payment_intent.created',
-	SUCCEEDED: 'payment_intent.succeeded',
-	CANCELED: 'payment_intent.canceled',
-	FAILED: 'payment_intent.payment_failed'
-}
+const { Video } = require('../models/Video');
 
 
 exports.postCheckoutSession = async (req, res) => {
@@ -21,12 +16,13 @@ exports.postCheckoutSession = async (req, res) => {
 	const status = paymentIntent.status;
 
 	
-	if (video && status === 'succeeded') {//TODO Check if video or image
+	if (video && status === 'succeeded') {
 		video.applied_seconds = Math.round(video.metadata.duration / Math.round((paymentIntent.amount / 100) / CHARGE_PER_FRAME));
 		video.payment_id = data.object.payment_intent;
 		video.save();
 		try {
 			await emotionfyVideo(video, processFrame);
+			publish(video.user, video.id, status.COMPLETE);
 		} catch(err) {
 			video.remove();
 			console.log(err);

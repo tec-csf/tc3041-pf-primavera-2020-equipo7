@@ -5,15 +5,13 @@ const ffmpeg = require('ffmpeg');
 
 const { processFreeFrame } = require('../util/pyapi');
 const { emotionfyVideo } = require('../util/emotionfy');
+const { publish, status } = require('../util/realtime');
 
 const { Video, videoAggregations } = require('../models/Video');
 const { Simple, Complete } = require('../models/Analysis');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 const HttpError = require('../models/HttpError');
-
-const redis = require('redis');
-const publisher = redis.createClient();
 
 exports.postVideo = async (req, res, next) => {
 	const user = req.user;
@@ -83,7 +81,8 @@ exports.postVideoAnalysis = async (req, res, next) => {
 		return next(new HttpError('Error while analyzing video', 403));
 	}
 
-	publisher.publish('video', `{"status":"complete", "user":"${video.user}", "id":"${video.id}"}`);
+	publish(video.user, video.id, status.COMPLETE);
+	
 	res.status(200).send({ message: 'Analysis done' });
 };
 

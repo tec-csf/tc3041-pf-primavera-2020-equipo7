@@ -977,7 +977,11 @@ videoSchema.pre('remove', async function (next) {
 		if (this.__v) {
 			await Simple.deleteOne({ _id: this._id });
 			await Complete.deleteOne({ _id: this._id });
-			await bucket.file(this.name).delete();
+			for (let frame of this.frames) {
+				const frameLinkArray = frame.bucket_link.split('/');
+				await bucket.file(frameLinkArray[frameLinkArray.length - 1]).delete();
+			}
+			await bucket.file(`${this.id}_video.mp4`).delete();
 		} else {
 			await fs.rmdir(path.resolve(this.user), {
 				recursive: true

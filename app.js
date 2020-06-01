@@ -8,7 +8,7 @@ const http = require('http');
 
 const HttpError = require('./models/HttpError');
 const { MONGO_URI } = require('./config/secrets');
-const realtime = require('./realtime');
+const { realtime } = require('./util/realtime');
 // Routes
 const videoRoutes = require('./routes/video');
 const webhookRoutes = require('./routes/webhooks');
