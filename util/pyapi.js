@@ -12,6 +12,7 @@ exports.processFreeFrame = async (file) => {
 
 	try {
 		const result = await axios.post('/pyapi/imagen/clasificar', fData, {
+		//const result = await axios.post('http://0.0.0.0:8000/imagen/clasificar', fData, {
 			headers: fData.getHeaders(), 
 			responseType: 'arraybuffer'
 		});

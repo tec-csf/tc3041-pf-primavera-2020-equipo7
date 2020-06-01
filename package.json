@@ -21,6 +21,7 @@
     "mongoose": "^5.9.14",
     "ngrok": "^3.2.7",
     "redis": "^3.0.2",
+    "socket.io": "^2.3.0",
     "stripe": "^8.55.0"
   },
   "devDependencies": {

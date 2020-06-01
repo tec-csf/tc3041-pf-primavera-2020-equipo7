@@ -3,8 +3,11 @@ const { bucket } = require('./gc');
 const ffmpeg = require('ffmpeg');
 const fs = require('fs').promises;
 const path = require('path');
+const redis = require('redis');
+const publisher = redis.createClient();
 
 exports.emotionfyVideo = async (video, callback) => {
+	publisher.publish('video', `{"status":"extract", "user":"${video.user}", "id":"${video.id}"}`);
 	const user = video.user;
 	const seconds = video.applied_seconds;
 	const uploadsPath = path.resolve(user, video.id);
@@ -13,7 +16,8 @@ exports.emotionfyVideo = async (video, callback) => {
 		every_n_seconds: seconds,
 		file_name: `${video.id}_frame_%s`
 	});
-	
+
+	publisher.publish('video', `{"status":"process", "user":"${video.user}", "id":"${video.id}"}`);
 	let i = 0;
 	for (; i < files.length; i++) {
 		if (files[i] === video.metadata.local_link) {
@@ -27,6 +31,8 @@ exports.emotionfyVideo = async (video, callback) => {
 		}
 
 	}
+
+	publisher.publish('video', `{"status":"save", "user":"${video.user}", "id":"${video.id}"}`);
 	for (let i = 0; i < files.length; i++) {
 		if (i === files.length - 1) {
 			bucket.upload(files[i], {

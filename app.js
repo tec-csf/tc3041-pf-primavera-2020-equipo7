@@ -4,14 +4,18 @@ const mongoose = require('mongoose');
 const compression = require('compression');
 const express = require('express');
 const cors = require('cors');
+const http = require('http');
 
 const HttpError = require('./models/HttpError');
 const { MONGO_URI } = require('./config/secrets');
+const realtime = require('./realtime');
 // Routes
 const videoRoutes = require('./routes/video');
 const webhookRoutes = require('./routes/webhooks');
 
 const app = express();
+const server = http.Server(app);
+realtime(server);
 
 app.use(compression());
 app.use(express.json());
@@ -43,5 +47,5 @@ mongoose.connect(MONGO_URI, {
 	useUnifiedTopology: true
 }).then(() => {
 	console.log(`Connected to Mongo with URI: ${MONGO_URI}`);
-	app.listen(port, () => console.log(`Listening on port ${port}...`));
+	server.listen(port, () => console.log(`Listening on port ${port}...`));
 }).catch(err => console.log(`Error connecting to mongo: ${err}`));
