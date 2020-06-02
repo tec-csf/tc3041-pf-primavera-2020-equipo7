@@ -265,64 +265,63 @@ A continuación están resumidos los endpoints que se utilizaron:
 
 ~~~json
 {
-  "user":String
+  "user": "String"
 }
 ~~~
 
 * **Formato JSON de la respuesta**:
 ```json
-{
-  payed: {
-    name: String,
-    path: String,
-    user: String,
-    payment_id: String,
-    local_link: String,
-    instant: Number,
-    sequence_id: Number,
-    bucket_link: String,
-    analysis: [
+"payed": {
+    "name": "String",
+    "path": "String",
+    "user": "String",
+    "payment_id": "String",
+    "local_link": "String",
+    "instant": "Number",
+    "sequence_id": "Number",
+    "bucket_link": "String",
+    "analysis": [
     {
-      AgeRange: {
-        High: Number,
-        Low: Number
+      "AgeRange": {
+        "High": "Number",
+        "Low": "Number"
       },
-      Beard: {
-        Confidence: Number,
-        Value: Boolean
+      "Beard": {
+        "Confidence": "Number",
+        "Value": "Boolean"
       },
-      BoundingBox: {
-        Height: Number,
-        Left: Number,
-        Top: Number,
-        Width: Number
+      "BoundingBox": {
+        "Height": "Number",
+        "Left": "Number",
+        "Top": "Number",
+        "Width": "Number"
       },
-      Confidence: Number,
-      Emotions: [
+      "Confidence": "Number",
+      "Emotions": [
         {
-          Confidence: Number,
-          Type: {
-            type: String,
+          "Confidence": "Number",
+          "Type": {
+            "type": "String",
             enum: [ 'HAPPY', 'SURPRISED', 'ANGRY', 'CONFUSED', 'CALM', 'SAD', 'FEAR', 'DISGUSTED' ]
           }
         }
       ],
       Eyeglasses: {
-        Confidence: Number,
-        Value: Boolean
+        "Confidence": "Number",
+        "Value": "Boolean"
       },
-      EyesOpen: {
-        Confidence: Number,
-        Value: Boolean
+      "EyesOpen": {
+        "Confidence": "Number",
+        "Value": "Boolean"
       },
-      Gender: {
-        Confidence: Number,
-        Value: String
+      "Gender": {
+        "Confidence": "Number",
+        "Value": "String"
       },
-      Landmarks: [
+      "Landmarks": [
       {
-        Type: {
-          type: String,
+        "Type": {
+          "type": "String",
           enum: [
             'eyeLeft',
             'eyeRight',
@@ -356,70 +355,76 @@ A continuación están resumidos los endpoints que se utilizaron:
             'upperJawlineRight'
           ]
         },
-        X: Number,
-        Y: Number
+        "X": "Number",
+        "Y": "Number"
         }
       ],
-      MouthOpen: {
-        Confidence: Number,
-        Value: Boolean
+      "MouthOpen": {
+        "Confidence": "Number",
+        "Value": "Boolean"
       },
-      Mustache: {
-        Confidence: Number,
-        Value: Boolean
+      "Mustache": {
+        "Confidence": "Number",
+        "Value": "Boolean"
       },
-      Pose: {
-        Pitch: Number,
-        Roll: Number,
-        Yaw: Number
+      "Pose": {
+        "Pitch": "Number",
+        "Roll": "Number",
+        "Yaw": "Number"
       },
-      Quality: {
-        Brightness: Number,
-        Sharpness: Number
+      "Quality": {
+        "Brightness": "Number",
+        "Sharpness": "Number"
       },
-      Smile: {
-        Confidence: Number,
-        Value: Boolean
+      "Smile": {
+        "Confidence": "Number",
+        "Value": "Boolean"
       },
-      Sunglasses: {
-        Confidence: Number,
-        Value: Boolean
+      "Sunglasses": {
+        "Confidence": "Number",
+        "Value": "Boolean"
       }
     }
   ]
-  }
 },
-  free: {
-    user: String,
-    name: String,
-    payment_id: String,
-    metadata: {
-    local_link: String,
-    bucket_link: String,
-    video_size: [Number, Number],
-    frame_rate: Number,
-    duration: Number
+  "free": {
+    "user": "String",
+    "name": "String",
+    "payment_id": "String",
+    "metadata": {
+    "local_link": "String",
+    "bucket_link": "String",
+    "video_size": ["Number", "Number"],
+    "frame_rate": "Number",
+    "duration": "Number"
     },
-    applied_seconds: Number,
-    frames: [frameSchema],
-    general: {
-    name: String,
-    emotion: {
-    type: String,
-    enum: ['HAPPY', 'SURPRISED', 'ANGRY', 'CONFUSED', 'CALM', 'SAD', 'FEAR', 'DISGUSTED']
+    "applied_seconds": "Number",
+    "frames": [frameSchema],
+    "general": {
+    "name": "String",
+    "emotion": {
+    "type": "String",
+    "enum": ['HAPPY', 'SURPRISED', 'ANGRY', 'CONFUSED', 'CALM', 'SAD', 'FEAR', 'DISGUSTED']
     },
-    gestures: Number,
-    link: String,
-    duration: Number
+    "gestures": "Number",
+    "link": "String",
+    "duration": "Number"
     },
-    gestures: []
+    "gestures": []
   },
-  pending: {
-    
-
+  "pending": [
+    "id_video" :"String",
+    "duration": "Number"
+  ],
+  "processing": {
+    "id_video": {
+      "user_id":"String",
+      "status":"String"
+    } //puede tener varios de estos documentos
   }
 }
 ```
+
 * **Códigos de error**:
 
 - 500
@@ -432,38 +437,21 @@ A continuación están resumidos los endpoints que se utilizaron:
 
 ~~~json
 {
-  "user":String
+  "user": String
 }
 ~~~
 
 * **Formato JSON de la respuesta**:
 ```json
 {
-  link:String, //liga al bucket de GCS
-  name:String
+  "link": "String", //liga al bucket de GCS
+  "name": "String"
 }
 ```
 * **Códigos de error**:
 
 - 500
 - 404
-
-* **Descripción**: Obtención del estado de un video que se acaba de subir (GCS, AWS, Modelo de python)
-* **URL**: ```/videos/status```
-* **Verbos HTTP**: ```GET```
-* **Headers**:
-* **Formato JSON del cuerpo de la solicitud**:
-
-~~~json
-{
-  "user":String
-}
-~~~
-
-* **Formato JSON de la respuesta**:
-```json
-//TODO ans json status
-```
 
 * **Descripción**: Borrado de un video en específico
 * **URL**: ```/videos/:id```
@@ -498,9 +486,11 @@ A continuación están resumidos los endpoints que se utilizaron:
 ~~~
 
 * **Formato JSON de la respuesta**:
+
 ```json
 {'received'}
 ```
+
 * **Códigos de error**:
 
 - 500
