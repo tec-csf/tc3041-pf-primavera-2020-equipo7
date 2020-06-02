@@ -61,6 +61,15 @@ El proyecto seleccionado es una plataforma que permite el análisis de emociones
 - El modelo de CNN, está ligado con una cuenta "básica": permite subir un video, el análisis se hace cada segundo, pero solo regresa un arreglo de imágenes dibujadas, junto con algunas emociones detectadas.
 
 ## 3. Solución
+Nuestra solución resuelve los siguientes procesos de negocio:
+•	Subir videos, almacenar y poder recuperarlos videos
+•	División del video en frames 
+•	Subir, almacenar y poder recuperar imágenes 
+•	Uso de dos modelos para calcular los sentimientos predominantes
+•	Desplegar información de sentimientos del video en gráficas
+•	Sesiones de usuario
+•	Linea de tiempo para mostrar un frame específico y ver qué emociones había en ese momento
+•	Manejo de pagos
 
 Decidimos implementar la solución del problema dividido en dos partes: la administración de videos e imágenes, y la segunda parte, la de usuarios.
 
