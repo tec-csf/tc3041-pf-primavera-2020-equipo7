@@ -62,14 +62,20 @@ El proyecto seleccionado es una plataforma que permite el análisis de emociones
 
 ## 3. Solución
 Nuestra solución resuelve los siguientes procesos de negocio:
-•	Subir videos, almacenar y poder recuperarlos videos
-•	División del video en frames 
-•	Subir, almacenar y poder recuperar imágenes 
-•	Uso de dos modelos para calcular los sentimientos predominantes
-•	Desplegar información de sentimientos del video en gráficas
-•	Sesiones de usuario
-•	Linea de tiempo para mostrar un frame específico y ver qué emociones había en ese momento
-•	Manejo de pagos
+- Subir videos, almacenar y poder recuperarlos videos
+- División del video en frames 
+- Subir, almacenar y poder recuperar imágenes 
+- Uso de dos modelos para calcular los sentimientos predominantes
+- Desplegar información de sentimientos del video en gráficas
+- Sesiones de usuario
+- Linea de tiempo para mostrar un frame específico y ver qué emociones había en ese momento
+- Manejo de pagos
+
+Además, contamos con los siguientes microservicios:
+- Stripe (Para manejo de pagos)
+- Firebase (Para manejo de usuarios)
+- AWS recognition
+- GCP storage
 
 Decidimos implementar la solución del problema dividido en dos partes: la administración de videos e imágenes, y la segunda parte, la de usuarios.
 
