@@ -227,7 +227,7 @@ A continuación están resumidos los endpoints que se utilizaron:
 * **Descripción**:La carga de videos a la plataforma
 * **URL**: ```/videos/```
 * **Verbos HTTP**: ```POST```
-* **Headers**:
+* **Headers**: Authorization = Bearer + Token
 * **Formato JSON del cuerpo de la solicitud**:
 ```json
 {
@@ -249,7 +249,7 @@ A continuación están resumidos los endpoints que se utilizaron:
 * **Descripción**:La carga del análisis del video a la plataforma
 * **URL**: ```/videos/:id```
 * **Verbos HTTP**: ```POST```
-* **Headers**:
+* **Headers**: Authorization = Bearer + Token
 * **Formato JSON del cuerpo de la solicitud**:
 ```json
 {
@@ -270,7 +270,7 @@ A continuación están resumidos los endpoints que se utilizaron:
 * **Descripción**: Obtención de los videos subidos por el usuario de la sesión activa
 * **URL**: ```/videos/```
 * **Verbos HTTP**: ```GET```
-* **Headers**:
+* **Headers**: Authorization = Bearer + Token
 * **Formato JSON del cuerpo de la solicitud**:
 
 ~~~json
@@ -442,7 +442,7 @@ A continuación están resumidos los endpoints que se utilizaron:
 * **Descripción**: Obtención de un video en específico
 * **URL**: ```/videos/:id```
 * **Verbos HTTP**: ```GET```
-* **Headers**:
+* **Headers**: Authorization = Bearer + Token
 * **Formato JSON del cuerpo de la solicitud**:
 
 ~~~json
@@ -466,7 +466,7 @@ A continuación están resumidos los endpoints que se utilizaron:
 * **Descripción**: Borrado de un video en específico
 * **URL**: ```/videos/:id```
 * **Verbos HTTP**: ```DELETE```
-* **Headers**:
+* **Headers**: Authorization = Bearer + Token
 * **Formato JSON del cuerpo de la solicitud**:
 
 ~~~json
@@ -486,7 +486,7 @@ A continuación están resumidos los endpoints que se utilizaron:
 * **Descripción**: Checkout de la compra de un video
 * **URL**: ```/checkout/```
 * **Verbos HTTP**: ```POST```
-* **Headers**:
+* **Headers**: Authorization = Bearer + Token
 * **Formato JSON del cuerpo de la solicitud**:
 
 ~~~json
@@ -544,3 +544,4 @@ firebase deploy
 
 - [Firebase Docs](https://firebase.google.com/docs/)
 - [Storage Docs](https://cloud.google.com/storage/)
+- [Stripe Docs](https://stripe.com/docs)
