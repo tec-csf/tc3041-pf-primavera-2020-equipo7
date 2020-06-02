@@ -1,0 +1,17 @@
+{
+	"_id": {
+		"type": "mongoose.Types.ObjectId",
+		"ref": "Video"
+	},
+	"user": "String",
+	"main": "Object",
+	"counts": "Object",
+	"beards": ["Number"],
+	"eyeglasses": ["Number"],
+	"females": "Number",
+	"males": "Number",
+	"smiles": ["Number"],
+	"sunglasses": ["Number"],
+	"ages": "Object",
+	"links": []
+}

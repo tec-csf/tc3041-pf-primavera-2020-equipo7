@@ -4,9 +4,9 @@
 
 ##### Integrantes:
 
-1. *Roberto Gervacio Guendulay* - *[Poner aquí su Matrícula]* - *Campus Santa Fe*
-2. *Isaac Harari Masri* - *[Poner aquí su Matrícula]* - *Campus Santa Fe*
-3. *Alejandra Nissan Leizorek* - *[Poner aquí su Matrícula]* - *Campus Santa Fe*
+1. *Roberto Gervacio Guendulay* - *A01025780* - *Campus Santa Fe*
+2. *Isaac Harari Masri* - *A01024688* - *Campus Santa Fe*
+3. *Alejandra Nissan Leizorek* - *A01024682* - *Campus Santa Fe*
 4. *Yann Le Lorier Bárcena* - *A01025977* - *Campus Santa Fe*
 
 ## 1. Aspectos generales
@@ -28,6 +28,7 @@ A continuación se mencionan los requerimientos técnicos mínimos del proyecto,
 * Todo el código, *datasets* y la documentación del proyecto debe alojarse en este repositorio de GitHub siguiendo la estructura que aparece a continuación.
 
 ### 1.2 Estructura del repositorio
+
 El proyecto debe seguir la siguiente estructura de carpetas:
 ```
 - / 			        # Raíz de todo el proyecto
@@ -76,7 +77,7 @@ Para evitar esto, Redis nos permite obtener el estado en el que se encuentra el 
 
 ### 3.2 Arquitectura de la solución
 
-![Arquitectura de la solución](./rmimg/arch.png)
+![Arquitectura de la solución](./docs/stage_f/arch.png)
 
 ### 3.3 Frontend
 

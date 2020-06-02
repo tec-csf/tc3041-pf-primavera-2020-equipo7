@@ -1,0 +1,14 @@
+{
+	"user": "String",
+	"name": "String",
+	"payment_id": "String",
+	"metadata": {
+		"local_link": "String",
+		"bucket_link": "String",
+		"video_size": ["Number", "Number"],
+		"frame_rate": "Number",
+		"duration": "Number"
+	},
+	"applied_seconds": "Number",
+	"frames": ["FrameSchema"]
+}

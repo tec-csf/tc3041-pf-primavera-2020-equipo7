@@ -1,0 +1,20 @@
+
+{
+	"_id": {
+		"type": "mongoose.Types.ObjectId",
+		"ref": "Video"
+	},
+	"user": "String",
+	"general": {
+		"name": "String",
+		"emotion": {
+			"type": "String",
+			"enum": ["HAPPY", "SURPRISED", "ANGRY", "CONFUSED", "CALM", "SAD", "FEAR", "DISGUSTED"]
+		},
+		"gestures": "Number",
+		"link": "String",
+		"duration": "Number"
+	},
+	"gestures": []
+
+}
