@@ -507,9 +507,29 @@ git clone git@github.com:tec-csf/tc3041-pf-primavera-2020-equipo7.git
 
 ### 3.6.2 backend
 
+Descargar .env https://www.mediafire.com/file/ne0t1ncmoq6kohi/.env/file
+
+```sh
+yarn install
+yarn run dev
+sudo apt install ffmpeg
+```
+
 ### 3.6.3 frontend
 
+Descargar .env http://www.mediafire.com/file/dj3cl5dfnc6bs4g/.env%25282%2529/file
+
+```
+yarn install
+yarn start
+```
+
 ### 3.6.4 Deploy
+
+```sh
+firebase init
+firebase deploy
+```
 
 ## 4. Referencias
 
